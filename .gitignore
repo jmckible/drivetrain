@@ -1,0 +1,6 @@
+# Machine-specific configs should only be in templates/, not stow/
+stow/hypr/.config/hypr/monitors.conf
+stow/hypr/.config/hypr/input.conf
+stow/hypr/.config/hypr/looknfeel.conf
+stow/hypr/.config/hypr/envs.conf
+stow/hypr/.config/hypr/bindings.conf

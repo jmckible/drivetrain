@@ -16,8 +16,15 @@ if command -v omarchy-restart-waybar &> /dev/null; then
     omarchy-restart-waybar
 fi
 
-# Stow shared hypr configs (these are symlinked)
-stow -d "$STOW_DIR" -t ~ hypr
+# Create ~/.config/hypr directory as a real directory (not a symlink)
+mkdir -p ~/.config/hypr
+
+# Copy machine-specific templates BEFORE stowing (these are local copies, not symlinked)
+TEMPLATE_DIR="$(pwd)/templates/hypr"
+cp "$TEMPLATE_DIR/monitors.conf" ~/.config/hypr/monitors.conf
+cp "$TEMPLATE_DIR/input.conf" ~/.config/hypr/input.conf
+cp "$TEMPLATE_DIR/looknfeel.conf" ~/.config/hypr/looknfeel.conf
+cp "$TEMPLATE_DIR/envs.conf" ~/.config/hypr/envs.conf
 
 # Restore Omarchy-managed bindings.conf if it doesn't exist
 if [[ ! -f ~/.config/hypr/bindings.conf ]]; then
@@ -25,6 +32,9 @@ if [[ ! -f ~/.config/hypr/bindings.conf ]]; then
         cp ~/.local/share/omarchy/config/hypr/bindings.conf ~/.config/hypr/bindings.conf
     fi
 fi
+
+# Now stow shared hypr configs (these will be symlinked into the existing directory)
+stow -d "$STOW_DIR" -t ~ hypr
 
 # Detect machine type based on hardware
 DETECTED_TYPE=""
@@ -65,13 +75,6 @@ fi
 
 # Save machine type for other scripts to use
 echo "$MACHINE_TYPE" > /tmp/drivetrain-machine-type
-
-# Copy machine-specific templates
-TEMPLATE_DIR="$(pwd)/templates/hypr"
-cp "$TEMPLATE_DIR/monitors.conf" ~/.config/hypr/monitors.conf
-cp "$TEMPLATE_DIR/input.conf" ~/.config/hypr/input.conf
-cp "$TEMPLATE_DIR/looknfeel.conf" ~/.config/hypr/looknfeel.conf
-cp "$TEMPLATE_DIR/envs.conf" ~/.config/hypr/envs.conf
 
 # Uncomment appropriate settings based on machine type
 if [[ $MACHINE_TYPE == "1" ]]; then
