@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Install stow
-yay -S --noconfirm --needed stow
+# Install stow from official repos
+sudo pacman -S --noconfirm --needed stow
 
 STOW_DIR="$(pwd)/stow"
 
@@ -36,8 +36,8 @@ if [[ $MACHINE_TYPE == "1" ]]; then
     # Uncomment Desktop monitor settings
     sed -i '/# DESKTOP - Dell/,/^$/ s/^# \(env =\|monitor =\)/\1/' ~/.config/hypr/monitors.conf
 
-    # Uncomment Desktop sensitivity
-    sed -i '/# DESKTOP - Lower sensitivity/,/^$/ s/^# \(sensitivity =\)/\1/' ~/.config/hypr/input.conf
+    # Uncomment Desktop sensitivity and scroll
+    sed -i '/# DESKTOP - Lower sensitivity/,/^$/ s/^  # \(sensitivity =\|natural_scroll =\)/  \1/' ~/.config/hypr/input.conf
 
     # Uncomment Desktop aspect ratio
     sed -i '/# DESKTOP - Large screen/,/^$/ s/^    # \(single_window_aspect_ratio =\)/    \1/' ~/.config/hypr/looknfeel.conf
@@ -51,8 +51,8 @@ elif [[ $MACHINE_TYPE == "2" ]]; then
     # Uncomment Laptop monitor settings
     sed -i '/# LAPTOP - 2012 MacBook/,/^$/ s/^# \(env =\|monitor =\)/\1/' ~/.config/hypr/monitors.conf
 
-    # Uncomment Laptop sensitivity
-    sed -i '/# LAPTOP - Higher sensitivity/,/^$/ s/^# \(sensitivity =\)/\1/' ~/.config/hypr/input.conf
+    # Uncomment Laptop sensitivity and scroll
+    sed -i '/# LAPTOP - Traditional scroll/,/^$/ s/^  # \(sensitivity =\|natural_scroll =\)/  \1/' ~/.config/hypr/input.conf
 
     # looknfeel.conf - no changes needed for laptop (default behavior)
     # envs.conf - no changes needed for laptop (no GPU-specific settings)

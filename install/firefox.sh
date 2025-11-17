@@ -1,4 +1,4 @@
 #!/bin/bash
 
-# Install firefox
-yay -S --noconfirm --needed firefox
+# Install firefox from official repos
+sudo pacman -S --noconfirm --needed firefox

@@ -20,7 +20,7 @@ else
 fi
 
 echo "Installing keyd..."
-yay -S --noconfirm --needed keyd
+sudo pacman -S --noconfirm --needed keyd
 
 echo "Creating keyd configuration..."
 sudo mkdir -p /etc/keyd
