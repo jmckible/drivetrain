@@ -16,6 +16,7 @@ TEMPLATE_DIR="$(pwd)/templates/hypr"
 cp "$TEMPLATE_DIR/monitors.conf" ~/.config/hypr/monitors.conf
 cp "$TEMPLATE_DIR/input.conf" ~/.config/hypr/input.conf
 cp "$TEMPLATE_DIR/looknfeel.conf" ~/.config/hypr/looknfeel.conf
+cp "$TEMPLATE_DIR/envs.conf" ~/.config/hypr/envs.conf
 
 hyprctl reload
 
@@ -34,6 +35,9 @@ echo "   - Uncomment DESKTOP or LAPTOP sensitivity settings"
 echo ""
 echo "3. ~/.config/hypr/looknfeel.conf"
 echo "   - Uncomment DESKTOP aspect ratio if on large screen"
+echo ""
+echo "4. ~/.config/hypr/envs.conf"
+echo "   - Uncomment DESKTOP NVIDIA settings or LAPTOP settings"
 echo ""
 echo "After editing, reload Hyprland:"
 echo "   hyprctl reload"
