@@ -3,8 +3,10 @@
 # Install SSH first as a backdoor in case something breaks
 ./install/ssh.sh
 
+# Install theme first, before stowing hyprland config that references it
+./install/theme.sh
+
 ./install/stow.sh
 ./install/keyd.sh
 ./install/firefox.sh
-./install/theme.sh
 ./install/omarchy-packages.sh
