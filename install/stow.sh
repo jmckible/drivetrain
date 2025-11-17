@@ -10,6 +10,11 @@ rm -rf ~/.config/waybar
 stow -d "$STOW_DIR" -t ~ nvim
 stow -d "$STOW_DIR" -t ~ waybar
 
+# Restart waybar to pick up new config
+if command -v omarchy-restart-waybar &> /dev/null; then
+    omarchy-restart-waybar
+fi
+
 # Stow shared hypr configs (these are symlinked)
 stow -d "$STOW_DIR" -t ~ hypr
 
