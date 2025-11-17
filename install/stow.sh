@@ -11,13 +11,42 @@ stow -d "$STOW_DIR" -t ~ nvim
 # Stow shared hypr configs (these are symlinked)
 stow -d "$STOW_DIR" -t ~ hypr
 
-# Ask for machine type
+# Detect machine type based on hardware
+DETECTED_TYPE=""
+DETECTED_MSG=""
+
+# Check if it's a laptop (battery present)
+if [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]; then
+    DETECTED_TYPE="2"
+    DETECTED_MSG="(laptop detected - battery present)"
+# Check for NVIDIA GPU (likely desktop)
+elif lspci 2>/dev/null | grep -qi nvidia; then
+    DETECTED_TYPE="1"
+    DETECTED_MSG="(desktop detected - NVIDIA GPU found)"
+# Check chassis type via hostnamectl
+elif hostnamectl 2>/dev/null | grep -qi "Chassis:.*laptop\|Chassis:.*notebook\|Chassis:.*portable"; then
+    DETECTED_TYPE="2"
+    DETECTED_MSG="(laptop detected)"
+else
+    DETECTED_TYPE="1"
+    DETECTED_MSG="(defaulting to desktop)"
+fi
+
+# Ask for machine type with detected default
 echo ""
 echo "Select machine type:"
 echo "1) Desktop (Dell 4K monitor, NVIDIA GPU)"
 echo "2) Laptop (2012 MacBook Pro 15\")"
-read -p "Enter 1 or 2: " -n 1 -r MACHINE_TYPE
 echo ""
+echo "Auto-detected: Option $DETECTED_TYPE $DETECTED_MSG"
+read -p "Enter 1 or 2 (or press Enter for detected default): " -n 1 -r MACHINE_TYPE
+echo ""
+
+# Use detected type if user just pressed Enter
+if [[ -z "$MACHINE_TYPE" ]]; then
+    MACHINE_TYPE="$DETECTED_TYPE"
+    echo "Using auto-detected option: $MACHINE_TYPE"
+fi
 
 # Save machine type for other scripts to use
 echo "$MACHINE_TYPE" > /tmp/drivetrain-machine-type
