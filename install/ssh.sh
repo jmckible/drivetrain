@@ -2,8 +2,8 @@
 
 echo "Installing and enabling SSH server for remote access..."
 
-# Install OpenSSH server
-yay -S --noconfirm --needed openssh
+# Install OpenSSH server from official repos (not AUR variants)
+sudo pacman -S --noconfirm --needed openssh
 
 # Enable and start sshd service
 sudo systemctl enable sshd
