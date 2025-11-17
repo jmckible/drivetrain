@@ -6,7 +6,9 @@ sudo pacman -S --noconfirm --needed stow
 STOW_DIR="$(pwd)/stow"
 
 rm -rf ~/.config/nvim
+rm -rf ~/.config/waybar
 stow -d "$STOW_DIR" -t ~ nvim
+stow -d "$STOW_DIR" -t ~ waybar
 
 # Stow shared hypr configs (these are symlinked)
 stow -d "$STOW_DIR" -t ~ hypr
