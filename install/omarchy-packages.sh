@@ -24,8 +24,15 @@ else
     echo "Dropbox already installed, skipping"
 fi
 
-# Install Steam if not already installed
-if ! pacman -Qi steam &> /dev/null; then
+# Install Steam if not already installed (skip on laptop - no gaming on MacBook)
+MACHINE_TYPE=""
+if [[ -f /tmp/drivetrain-machine-type ]]; then
+    MACHINE_TYPE=$(cat /tmp/drivetrain-machine-type)
+fi
+
+if [[ "$MACHINE_TYPE" == "2" ]]; then
+    echo "Laptop detected - skipping Steam installation"
+elif ! pacman -Qi steam &> /dev/null; then
     echo "Installing Steam..."
     omarchy-install-steam
 else
