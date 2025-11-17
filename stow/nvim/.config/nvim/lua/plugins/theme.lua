@@ -1,0 +1,1 @@
+/home/jmckible/.config/omarchy/current/theme/neovim.lua
