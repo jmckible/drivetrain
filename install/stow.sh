@@ -19,6 +19,13 @@ fi
 # Stow shared hypr configs (these are symlinked)
 stow -d "$STOW_DIR" -t ~ hypr
 
+# Restore Omarchy-managed bindings.conf if it doesn't exist
+if [[ ! -f ~/.config/hypr/bindings.conf ]]; then
+    if [[ -f ~/.local/share/omarchy/config/hypr/bindings.conf ]]; then
+        cp ~/.local/share/omarchy/config/hypr/bindings.conf ~/.config/hypr/bindings.conf
+    fi
+fi
+
 # Detect machine type based on hardware
 DETECTED_TYPE=""
 DETECTED_MSG=""
