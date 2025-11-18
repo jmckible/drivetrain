@@ -11,3 +11,4 @@
 ./install/firefox.sh
 ./install/keepassxc.sh
 ./install/omarchy-packages.sh
+./install/claude-code.sh
