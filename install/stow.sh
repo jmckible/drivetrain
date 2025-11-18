@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# Install stow from official repos
-sudo pacman -S --noconfirm --needed stow
+# Install stow from official repos if not already installed
+if ! pacman -Qi stow &> /dev/null; then
+    sudo pacman -S --noconfirm --needed stow
+fi
 
 STOW_DIR="$(pwd)/stow"
 
