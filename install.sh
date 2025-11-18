@@ -6,6 +6,9 @@
 # Install theme first, before stowing hyprland config that references it
 ./install/theme.sh
 
+# Install font before stowing configs that reference it
+./install/font.sh
+
 ./install/stow.sh
 ./install/keyd.sh
 ./install/firefox.sh

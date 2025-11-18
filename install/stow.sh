@@ -8,6 +8,7 @@ STOW_DIR="$(pwd)/stow"
 rm -rf ~/.config/nvim
 rm -rf ~/.config/waybar
 rm -rf ~/.config/hypr
+rm -rf ~/.config/alacritty
 stow -d "$STOW_DIR" -t ~ nvim
 stow -d "$STOW_DIR" -t ~ waybar
 
@@ -25,6 +26,11 @@ cp "$TEMPLATE_DIR/monitors.conf" ~/.config/hypr/monitors.conf
 cp "$TEMPLATE_DIR/input.conf" ~/.config/hypr/input.conf
 cp "$TEMPLATE_DIR/looknfeel.conf" ~/.config/hypr/looknfeel.conf
 cp "$TEMPLATE_DIR/envs.conf" ~/.config/hypr/envs.conf
+
+# Copy alacritty template
+ALACRITTY_TEMPLATE_DIR="$(pwd)/templates/alacritty"
+mkdir -p ~/.config/alacritty
+cp "$ALACRITTY_TEMPLATE_DIR/alacritty.toml" ~/.config/alacritty/alacritty.toml
 
 # Restore Omarchy-managed bindings.conf if it doesn't exist
 if [[ ! -f ~/.config/hypr/bindings.conf ]]; then
@@ -92,6 +98,9 @@ if [[ $MACHINE_TYPE == "1" ]]; then
     # Uncomment Desktop NVIDIA settings
     sed -i '/# DESKTOP - NVIDIA/,/^$/ s/^# \(env =.*NVIDIA\)/\1/' ~/.config/hypr/envs.conf
 
+    # Uncomment Desktop alacritty font size
+    sed -i '/# DESKTOP - Smaller font/,/^$/ s/^# \(size =\)/\1/' ~/.config/alacritty/alacritty.toml
+
 elif [[ $MACHINE_TYPE == "2" ]]; then
     echo "Configuring for Laptop..."
 
@@ -103,6 +112,9 @@ elif [[ $MACHINE_TYPE == "2" ]]; then
 
     # looknfeel.conf - no changes needed for laptop (default behavior)
     # envs.conf - no changes needed for laptop (no GPU-specific settings)
+
+    # Uncomment Laptop alacritty font size
+    sed -i '/# LAPTOP - Larger font/,/^$/ s/^# \(size =\)/\1/' ~/.config/alacritty/alacritty.toml
 
 else
     echo "Invalid selection. Please manually edit configs in ~/.config/hypr/"
