@@ -14,6 +14,18 @@ fi
 
 echo "Laptop detected - installing keyd fix for F12->7 mapping"
 
+# Check if keyd or keyd-git is already installed
+if pacman -Qq keyd &>/dev/null || pacman -Qq keyd-git &>/dev/null; then
+    # Check if the configuration is already correct
+    if [[ -f /etc/keyd/default.conf ]] && grep -q "f12 = 7" /etc/keyd/default.conf; then
+        # Check if service is enabled
+        if systemctl is-enabled keyd &>/dev/null; then
+            echo "keyd already installed and configured with F12->7 mapping, skipping"
+            exit 0
+        fi
+    fi
+fi
+
 echo "Installing keyd..."
 sudo pacman -S --noconfirm --needed keyd
 
