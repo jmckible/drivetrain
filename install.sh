@@ -18,5 +18,6 @@ MACHINE_TYPE="$1"
 ./install/keyd.sh
 ./install/firefox.sh
 ./install/keepassxc.sh
+./install/slack.sh
 ./install/omarchy-packages.sh
 ./install/claude-code.sh
