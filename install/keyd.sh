@@ -7,7 +7,7 @@ if [[ -f /tmp/drivetrain-machine-type ]]; then
 fi
 
 # If laptop was selected, install automatically
-if [[ "$MACHINE_TYPE" == "2" ]]; then
+if [[ "$MACHINE_TYPE" == "laptop" ]]; then
     echo "Laptop detected - installing keyd fix for F12->7 mapping automatically"
 else
     # Otherwise, ask if we should install the keyd fix

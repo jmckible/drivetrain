@@ -9,16 +9,21 @@ On a fresh Omarchy installation:
 ```bash
 git clone <this-repo> ~/dev/drivetrain
 cd ~/dev/drivetrain
-./install.sh
+./install.sh           # Auto-detect machine type
+# or
+./install.sh desktop   # Force desktop configuration
+./install.sh laptop    # Force laptop configuration
 ```
 
 The script will:
-1. Auto-detect your machine type (Desktop/Laptop)
+1. Auto-detect your machine type (Desktop/Laptop) or use provided argument
 2. Install SSH for remote access
 3. Install and configure the One Dark Pro theme
-4. Deploy your dotfiles via stow
-5. Configure Hyprland for your specific hardware
-6. Install applications (Firefox, KeePassXC, etc.)
+4. Install MesloLGS Nerd Font Mono and set as default
+5. Deploy your dotfiles via stow
+6. Configure Hyprland for your specific hardware
+7. Install applications (Firefox, KeePassXC, etc.)
+8. Install Claude Code CLI
 
 ## Architecture
 
@@ -46,15 +51,17 @@ The script will:
 
 ```
 drivetrain/
-├── install.sh              # Main install script
+├── install.sh              # Main install script (accepts desktop/laptop param)
 ├── install/                # Individual install scripts
 │   ├── ssh.sh             # Pacman: openssh
-│   ├── theme.sh           # Omarchy: one-dark-pro theme
+│   ├── theme.sh           # Omarchy: one-dark-pro theme (conditional)
+│   ├── font.sh            # Pacman: ttf-meslo-nerd + omarchy-font-set
 │   ├── stow.sh            # Deploys configs + machine detection
 │   ├── keyd.sh            # Pacman: F12->7 mapping (laptop only)
 │   ├── firefox.sh         # Pacman: firefox + set as default
 │   ├── keepassxc.sh       # Pacman: keepassxc
-│   └── omarchy-packages.sh # Omarchy: ruby, node, dropbox, steam
+│   ├── omarchy-packages.sh # Omarchy: ruby, node, dropbox, steam
+│   └── claude-code.sh     # NPM: @anthropic-ai/claude-code
 ├── stow/                   # Stowed configs (symlinked)
 │   ├── nvim/
 │   ├── waybar/
@@ -67,11 +74,13 @@ drivetrain/
 │           ├── hyprlock.conf
 │           └── windowrules.conf
 └── templates/              # Template configs (copied)
-    └── hypr/
-        ├── monitors.conf   # Display settings per machine
-        ├── input.conf      # Mouse/trackpad sensitivity
-        ├── looknfeel.conf  # Window aspect ratio (desktop only)
-        └── envs.conf       # GPU env vars (NVIDIA on desktop)
+    ├── hypr/
+    │   ├── monitors.conf   # Display settings per machine
+    │   ├── input.conf      # Mouse/trackpad sensitivity
+    │   ├── looknfeel.conf  # Window aspect ratio (desktop only)
+    │   └── envs.conf       # GPU env vars (NVIDIA on desktop)
+    └── alacritty/
+        └── alacritty.toml  # Terminal font size per machine
 ```
 
 ## Machine-Specific Configuration
@@ -82,14 +91,16 @@ drivetrain/
 - Lower mouse sensitivity (-0.55)
 - 7:8 single window aspect ratio
 - Natural scroll enabled
+- Alacritty font size 6.5
 - Steam installed
 
 ### Laptop (Auto-detected: Battery present)
-- 2012 MacBook Pro 15" Retina @ 2x scaling
+- 2012 MacBook Pro 15" Retina @ 1.5x scaling
 - Integrated graphics (no NVIDIA)
 - Higher trackpad sensitivity (0.1)
 - Traditional scroll (non-natural)
 - Default window aspect ratio
+- Alacritty font size 10
 - F12 key remapped to 7 (broken key workaround)
 - Steam skipped
 
@@ -145,14 +156,20 @@ Add to `install/omarchy-packages.sh` with appropriate checks.
 ```bash
 cd ~/dev/drivetrain
 git pull
-./install/stow.sh  # Re-run to update symlinks
+./install/stow.sh           # Auto-detect and update symlinks
+# or
+./install/stow.sh desktop   # Force desktop configuration
+./install/stow.sh laptop    # Force laptop configuration
 ```
 
 ### Full reinstall
 ```bash
 cd ~/dev/drivetrain
 git pull
-./install.sh  # Runs everything
+./install.sh           # Auto-detect and run everything
+# or
+./install.sh desktop   # Force desktop configuration
+./install.sh laptop    # Force laptop configuration
 ```
 
 ### Merge Omarchy updates

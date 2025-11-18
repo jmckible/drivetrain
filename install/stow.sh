@@ -42,48 +42,47 @@ fi
 # Now stow shared hypr configs (these will be symlinked into the existing directory)
 stow -d "$STOW_DIR" -t ~ hypr
 
+# Accept optional command-line parameter (desktop or laptop)
+MACHINE_TYPE_ARG="$1"
+
 # Detect machine type based on hardware
 DETECTED_TYPE=""
 DETECTED_MSG=""
 
 # Check if it's a laptop (battery present)
 if [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]; then
-    DETECTED_TYPE="2"
-    DETECTED_MSG="(laptop detected - battery present)"
+    DETECTED_TYPE="laptop"
+    DETECTED_MSG="(battery present)"
 # Check for NVIDIA GPU (likely desktop)
 elif lspci 2>/dev/null | grep -qi nvidia; then
-    DETECTED_TYPE="1"
-    DETECTED_MSG="(desktop detected - NVIDIA GPU found)"
+    DETECTED_TYPE="desktop"
+    DETECTED_MSG="(NVIDIA GPU found)"
 # Check chassis type via hostnamectl
 elif hostnamectl 2>/dev/null | grep -qi "Chassis:.*laptop\|Chassis:.*notebook\|Chassis:.*portable"; then
-    DETECTED_TYPE="2"
-    DETECTED_MSG="(laptop detected)"
+    DETECTED_TYPE="laptop"
+    DETECTED_MSG="(chassis type)"
 else
-    DETECTED_TYPE="1"
-    DETECTED_MSG="(defaulting to desktop)"
+    DETECTED_TYPE="desktop"
+    DETECTED_MSG="(default)"
 fi
 
-# Ask for machine type with detected default
-echo ""
-echo "Select machine type:"
-echo "1) Desktop (Dell 4K monitor, NVIDIA GPU)"
-echo "2) Laptop (2012 MacBook Pro 15\")"
-echo ""
-echo "Auto-detected: Option $DETECTED_TYPE $DETECTED_MSG"
-read -p "Enter 1 or 2 (or press Enter for detected default): " -n 1 -r MACHINE_TYPE
-echo ""
-
-# Use detected type if user just pressed Enter
-if [[ -z "$MACHINE_TYPE" ]]; then
+# Determine final machine type
+if [[ "$MACHINE_TYPE_ARG" == "desktop" ]]; then
+    MACHINE_TYPE="desktop"
+    echo "Using machine type: desktop (from command-line argument)"
+elif [[ "$MACHINE_TYPE_ARG" == "laptop" ]]; then
+    MACHINE_TYPE="laptop"
+    echo "Using machine type: laptop (from command-line argument)"
+else
     MACHINE_TYPE="$DETECTED_TYPE"
-    echo "Using auto-detected option: $MACHINE_TYPE"
+    echo "Using machine type: $MACHINE_TYPE (auto-detected $DETECTED_MSG)"
 fi
 
 # Save machine type for other scripts to use
 echo "$MACHINE_TYPE" > /tmp/drivetrain-machine-type
 
 # Uncomment appropriate settings based on machine type
-if [[ $MACHINE_TYPE == "1" ]]; then
+if [[ $MACHINE_TYPE == "desktop" ]]; then
     echo "Configuring for Desktop..."
 
     # Uncomment Desktop monitor settings
@@ -101,7 +100,7 @@ if [[ $MACHINE_TYPE == "1" ]]; then
     # Uncomment Desktop alacritty font size
     sed -i '/# DESKTOP - Smaller font/,/^$/ s/^# \(size =\)/\1/' ~/.config/alacritty/alacritty.toml
 
-elif [[ $MACHINE_TYPE == "2" ]]; then
+elif [[ $MACHINE_TYPE == "laptop" ]]; then
     echo "Configuring for Laptop..."
 
     # Uncomment Laptop monitor settings
@@ -117,7 +116,7 @@ elif [[ $MACHINE_TYPE == "2" ]]; then
     sed -i '/# LAPTOP - Larger font/,/^$/ s/^# \(size =\)/\1/' ~/.config/alacritty/alacritty.toml
 
 else
-    echo "Invalid selection. Please manually edit configs in ~/.config/hypr/"
+    echo "Invalid machine type. Please manually edit configs in ~/.config/hypr/"
 fi
 
 hyprctl reload

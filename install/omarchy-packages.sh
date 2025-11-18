@@ -30,7 +30,7 @@ if [[ -f /tmp/drivetrain-machine-type ]]; then
     MACHINE_TYPE=$(cat /tmp/drivetrain-machine-type)
 fi
 
-if [[ "$MACHINE_TYPE" == "2" ]]; then
+if [[ "$MACHINE_TYPE" == "laptop" ]]; then
     echo "Laptop detected - skipping Steam installation"
 elif ! pacman -Qi steam &> /dev/null; then
     echo "Installing Steam..."
