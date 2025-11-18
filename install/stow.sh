@@ -9,8 +9,10 @@ rm -rf ~/.config/nvim
 rm -rf ~/.config/waybar
 rm -rf ~/.config/hypr
 rm -rf ~/.config/alacritty
+rm -rf ~/.local/bin
 stow -d "$STOW_DIR" -t ~ nvim
 stow -d "$STOW_DIR" -t ~ waybar
+stow -d "$STOW_DIR" -t ~ bin
 
 # Restart waybar to pick up new config
 if command -v omarchy-restart-waybar &> /dev/null; then
