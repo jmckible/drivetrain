@@ -98,6 +98,13 @@ fi
 
 hyprctl reload
 
+# Restart walker services (hyprctl reload breaks their connection)
+pkill elephant
+pkill -f "walker --gapplication-service"
+sleep 1
+uwsm-app -- elephant &>/dev/null &
+uwsm-app -- walker --gapplication-service &>/dev/null &
+
 echo ""
 echo "Hyprland configuration complete!"
 echo ""
