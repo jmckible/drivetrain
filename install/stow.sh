@@ -22,17 +22,9 @@ fi
 # Create ~/.config/hypr directory as a real directory (not a symlink)
 mkdir -p ~/.config/hypr
 
-# Copy machine-specific templates BEFORE stowing (these are local copies, not symlinked)
-TEMPLATE_DIR="$(pwd)/templates/hypr"
-cp "$TEMPLATE_DIR/monitors.conf" ~/.config/hypr/monitors.conf
-cp "$TEMPLATE_DIR/input.conf" ~/.config/hypr/input.conf
-cp "$TEMPLATE_DIR/looknfeel.conf" ~/.config/hypr/looknfeel.conf
-cp "$TEMPLATE_DIR/envs.conf" ~/.config/hypr/envs.conf
-
-# Copy alacritty template
-ALACRITTY_TEMPLATE_DIR="$(pwd)/templates/alacritty"
-mkdir -p ~/.config/alacritty
-cp "$ALACRITTY_TEMPLATE_DIR/alacritty.toml" ~/.config/alacritty/alacritty.toml
+# Detect machine type (will be set later in the script)
+# For now, just ensure the placeholder is ready
+MACHINE_TYPE=""
 
 # Restore Omarchy-managed bindings.conf if it doesn't exist
 if [[ ! -f ~/.config/hypr/bindings.conf ]]; then
@@ -83,40 +75,21 @@ fi
 # Save machine type for other scripts to use
 echo "$MACHINE_TYPE" > /tmp/drivetrain-machine-type
 
-# Uncomment appropriate settings based on machine type
-if [[ $MACHINE_TYPE == "desktop" ]]; then
-    echo "Configuring for Desktop..."
+# Copy hardware-specific templates
+if [[ $MACHINE_TYPE == "desktop" || $MACHINE_TYPE == "laptop" ]]; then
+    echo "Configuring for $MACHINE_TYPE..."
 
-    # Uncomment Desktop monitor settings
-    sed -i '/# DESKTOP - Dell/,/^$/ s/^# \(env =\|monitor =\)/\1/' ~/.config/hypr/monitors.conf
+    TEMPLATE_DIR="$(pwd)/templates/$MACHINE_TYPE"
 
-    # Uncomment Desktop sensitivity and scroll
-    sed -i '/# DESKTOP - Lower sensitivity/,/^$/ s/^  # \(sensitivity =\|natural_scroll =\)/  \1/' ~/.config/hypr/input.conf
+    # Copy hypr configs
+    cp "$TEMPLATE_DIR/hypr/monitors.conf" ~/.config/hypr/monitors.conf
+    cp "$TEMPLATE_DIR/hypr/input.conf" ~/.config/hypr/input.conf
+    cp "$TEMPLATE_DIR/hypr/looknfeel.conf" ~/.config/hypr/looknfeel.conf
+    cp "$TEMPLATE_DIR/hypr/envs.conf" ~/.config/hypr/envs.conf
 
-    # Uncomment Desktop aspect ratio
-    sed -i '/# DESKTOP - Large screen/,/^$/ s/^    # \(single_window_aspect_ratio =\)/    \1/' ~/.config/hypr/looknfeel.conf
-
-    # Uncomment Desktop NVIDIA settings
-    sed -i '/# DESKTOP - NVIDIA/,/^$/ s/^# \(env =.*NVIDIA\)/\1/' ~/.config/hypr/envs.conf
-
-    # Uncomment Desktop alacritty font size
-    sed -i '/# DESKTOP - Smaller font/,/^$/ s/^# \(size =\)/\1/' ~/.config/alacritty/alacritty.toml
-
-elif [[ $MACHINE_TYPE == "laptop" ]]; then
-    echo "Configuring for Laptop..."
-
-    # Uncomment Laptop monitor settings
-    sed -i '/# LAPTOP - 2012 MacBook/,/^$/ s/^# \(env =\|monitor =\)/\1/' ~/.config/hypr/monitors.conf
-
-    # Uncomment Laptop sensitivity and scroll
-    sed -i '/# LAPTOP - Traditional scroll/,/^$/ s/^  # \(sensitivity =\|natural_scroll =\)/  \1/' ~/.config/hypr/input.conf
-
-    # looknfeel.conf - no changes needed for laptop (default behavior)
-    # envs.conf - no changes needed for laptop (no GPU-specific settings)
-
-    # Uncomment Laptop alacritty font size
-    sed -i '/# LAPTOP - Larger font/,/^$/ s/^# \(size =\)/\1/' ~/.config/alacritty/alacritty.toml
-
+    # Copy alacritty config
+    mkdir -p ~/.config/alacritty
+    cp "$TEMPLATE_DIR/alacritty/alacritty.toml" ~/.config/alacritty/alacritty.toml
 else
     echo "Invalid machine type. Please manually edit configs in ~/.config/hypr/"
 fi

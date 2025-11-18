@@ -7,16 +7,7 @@ TERM = "xterm-256color"
 normal = { family = "MesloLGS Nerd Font Mono" }
 bold = { family = "MesloLGS Nerd Font Mono" }
 italic = { family = "MesloLGS Nerd Font Mono" }
-
-# ========================================
-# DESKTOP - Smaller font for high-res monitor
-# ========================================
-# size = 6.5
-
-# ========================================
-# LAPTOP - Larger font for 1.5x scaling
-# ========================================
-# size = 10
+size = 10
 
 [window]
 padding.x = 14
