@@ -18,6 +18,7 @@ MACHINE_TYPE="$1"
 ./install/keyd.sh
 ./install/firefox.sh
 ./install/keepassxc.sh
+./install/transmission.sh
 ./install/slack.sh
 ./install/cpulimit.sh
 ./install/omarchy-packages.sh
