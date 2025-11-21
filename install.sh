@@ -8,6 +8,9 @@ MACHINE_TYPE="$1"
 # Install SSH first as a backdoor in case something breaks
 ./install/ssh.sh
 
+# Remove unwanted packages
+./install/remove-unwanted.sh
+
 # Install theme first, before stowing hyprland config that references it
 ./install/theme.sh
 
