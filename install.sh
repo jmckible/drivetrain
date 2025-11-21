@@ -12,7 +12,7 @@ MACHINE_TYPE="$1"
 ./install/theme.sh
 
 # Install font before stowing configs that reference it
-./install/font.sh
+# ./install/font.sh
 
 ./install/stow.sh "$MACHINE_TYPE"
 ./install/keyd.sh
