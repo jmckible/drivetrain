@@ -58,4 +58,9 @@ return {
     lazy = true,
     priority = 1000,
   },
+  {
+    "olimorris/onedarkpro.nvim",
+    lazy = true,
+    priority = 1000,
+  },
 }

@@ -54,7 +54,7 @@ drivetrain/
 ├── install.sh              # Main install script (accepts desktop/laptop param)
 ├── install/                # Individual install scripts
 │   ├── ssh.sh             # Pacman: openssh
-│   ├── theme.sh           # Omarchy: one-dark-pro theme (conditional)
+│   ├── theme.sh           # Install One Dark Pro theme from themes/
 │   ├── font.sh            # Pacman: ttf-meslo-nerd + omarchy-font-set
 │   ├── stow.sh            # Deploys configs + machine detection
 │   ├── keyd.sh            # Pacman: F12->7 mapping (laptop only)
@@ -62,8 +62,27 @@ drivetrain/
 │   ├── keepassxc.sh       # Pacman: keepassxc
 │   ├── omarchy-packages.sh # Omarchy: ruby, node, dropbox, steam
 │   └── claude-code.sh     # NPM: @anthropic-ai/claude-code
+├── themes/                 # Custom theme (installed locally)
+│   └── one-dark-pro/      # Complete One Dark Pro theme
+│       ├── neovim.lua     # Neovim colorscheme (fixed for hot reload)
+│       ├── ghostty.conf   # Ghostty terminal theme
+│       ├── kitty.conf     # Kitty terminal theme
+│       ├── alacritty.toml # Alacritty terminal theme
+│       ├── vscode.json    # VSCode theme integration
+│       ├── waybar.css     # Waybar styling
+│       ├── hyprland.conf  # Hyprland window manager colors
+│       ├── hyprlock.conf  # Lock screen colors
+│       ├── mako.ini       # Notification daemon colors
+│       ├── walker.css     # App launcher styling
+│       ├── btop.theme     # System monitor theme
+│       ├── preview.png    # Theme picker preview image
+│       └── backgrounds/   # Custom wallpapers (9 images)
 ├── stow/                   # Stowed configs (symlinked)
 │   ├── nvim/
+│   │   └── .config/nvim/
+│   │       └── lua/plugins/
+│   │           ├── all-themes.lua # Pre-loads themes for hot reload
+│   │           └── theme.lua      # Symlinked to theme's neovim.lua
 │   ├── waybar/
 │   └── hypr/
 │       └── .config/hypr/
@@ -103,6 +122,115 @@ drivetrain/
 - Alacritty font size 10
 - F12 key remapped to 7 (broken key workaround)
 - Steam skipped
+
+## Theme Management
+
+This repo includes a customized **One Dark Pro** theme that's managed locally instead of from the upstream GitHub repository. The theme is stored in `themes/one-dark-pro/` and includes fixes for proper Omarchy integration.
+
+### Why Local Theme?
+
+The official One Dark Pro theme from GitHub was missing several files and had configuration issues that prevented proper integration with Omarchy:
+- **Missing `preview.png`** - Theme picker had no preview image
+- **Missing terminal configs** - No `ghostty.conf`, `kitty.conf`, or `vscode.json`
+- **Broken hot reload** - Neovim config didn't follow Omarchy's pattern, causing hot reloads to fail
+
+### Theme Structure
+
+The local theme includes all required Omarchy theme files:
+
+```
+themes/one-dark-pro/
+├── neovim.lua          # Fixed for hot reload support
+├── preview.png         # Theme picker preview (required)
+├── ghostty.conf        # Ghostty terminal (Omarchy 3.2.0 default)
+├── kitty.conf          # Kitty terminal
+├── alacritty.toml      # Alacritty terminal
+├── vscode.json         # VSCode extension integration
+├── waybar.css          # Status bar styling
+├── hyprland.conf       # Window manager colors
+├── hyprlock.conf       # Lock screen
+├── mako.ini            # Notifications
+├── walker.css          # App launcher
+├── swayosd.css         # OSD styling
+├── btop.theme          # System monitor
+├── chromium.theme      # Browser theme
+├── icons.theme         # Icon pack reference
+├── starship.toml       # Shell prompt
+└── backgrounds/        # 9 custom wallpapers
+```
+
+### How Theme Installation Works
+
+When you run `./install.sh` or `./install/theme.sh`:
+
+1. **Copy theme to Omarchy**: `themes/one-dark-pro/` → `~/.config/omarchy/themes/one-dark-pro/`
+2. **Set as current**: Runs `omarchy-theme-set one-dark-pro`
+3. **Symlink to active theme**: Omarchy creates `~/.config/omarchy/current/theme/` → theme files
+4. **Neovim picks it up**: `stow/nvim/.config/nvim/lua/plugins/theme.lua` symlinks to the theme's `neovim.lua`
+
+### Modifying the Theme
+
+**To change theme colors or styling:**
+
+1. Edit files in `themes/one-dark-pro/`
+2. Reinstall the theme:
+   ```bash
+   ./install/theme.sh
+   ```
+3. Reload applications as needed:
+   ```bash
+   omarchy-restart-waybar
+   hyprctl reload
+   # Neovim will hot-reload automatically
+   ```
+
+**To add custom wallpapers:**
+
+1. Add images to `themes/one-dark-pro/backgrounds/`
+2. Reinstall theme: `./install/theme.sh`
+3. Select new wallpaper via `Super + W` or wallpaper picker
+
+**To update from upstream:**
+
+The upstream theme is at: https://github.com/sc0ttman/omarchy-one-dark-pro-theme
+
+If you want to pull updates:
+```bash
+cd /tmp
+git clone https://github.com/sc0ttman/omarchy-one-dark-pro-theme
+cd omarchy-one-dark-pro-theme
+# Manually copy desired files to ~/dev/drivetrain/themes/one-dark-pro/
+# DO NOT overwrite neovim.lua, ghostty.conf, kitty.conf, vscode.json, or preview.png
+# These have been fixed/added locally
+```
+
+### Neovim Hot Reload Fix
+
+The local `neovim.lua` was modified to support hot reload via `omarchy-theme-set`.
+
+**Upstream version (doesn't work with hot reload):**
+```lua
+config = function()
+  require("onedarkpro").setup({...})
+  vim.cmd("colorscheme onedark")  -- Sets theme directly
+end
+```
+
+**Fixed version (works with hot reload):**
+```lua
+{
+  "olimorris/onedarkpro.nvim",
+  opts = {...},  -- Uses opts instead of config
+},
+{
+  "LazyVim/LazyVim",
+  opts = { colorscheme = "onedark" },  -- LazyVim controls theme
+}
+```
+
+The fixed version allows `omarchy-theme-hotreload.lua` to detect and apply theme changes automatically.
+
+**Additionally**, `olimorris/onedarkpro.nvim` was added to `stow/nvim/.config/nvim/lua/plugins/all-themes.lua` so the plugin is pre-loaded for instant hot reloading.
 
 ## Adding New Configurations
 
@@ -227,6 +355,6 @@ Edit `stow/waybar/.config/waybar/config.jsonc` - your changes sync across machin
 ## Notes
 
 - **Omarchy updates**: May replace `bindings.conf`, check backups in `~/.config/hypr/bindings.conf.bak.*`
-- **Theme**: Managed via `omarchy-theme-install` and `omarchy-theme-set`
+- **Theme**: Managed locally in `themes/one-dark-pro/` - see [Theme Management](#theme-management) section
 - **Lazy-lock.json**: Included in stow for reproducible Neovim plugin versions
 - **SSH**: Installed first as a "backdoor" in case something breaks during setup

@@ -1,29 +1,32 @@
 #!/bin/bash
 
-# Check if One Dark Pro theme is already installed
-if omarchy-theme-list | grep -q "One Dark Pro"; then
-    echo "One Dark Pro theme already installed, skipping"
-else
-    echo "Installing One Dark Pro theme for Omarchy..."
-    # Install the theme from GitHub
-    # omarchy-theme-install will clone the repo and automatically set it as current
-    omarchy-theme-install https://github.com/sc0ttman/omarchy-one-dark-pro-theme
-    echo "One Dark Pro theme installed and set as current!"
+SCRIPT_DIR="$(dirname "$0")"
+REPO_THEME_DIR="$SCRIPT_DIR/../themes/one-dark-pro"
+OMARCHY_THEMES_DIR="$HOME/.config/omarchy/themes"
+THEME_DEST="$OMARCHY_THEMES_DIR/one-dark-pro"
+
+echo "Installing One Dark Pro theme for Omarchy..."
+
+# Create themes directory if it doesn't exist
+mkdir -p "$OMARCHY_THEMES_DIR"
+
+# Remove existing theme if present
+if [ -d "$THEME_DEST" ]; then
+    echo "Removing existing One Dark Pro theme..."
+    rm -rf "$THEME_DEST"
 fi
 
-# Copy custom backgrounds (after theme installation to override theme defaults)
-BACKGROUNDS_DIR="$HOME/.config/omarchy/current/theme/backgrounds"
-REPO_BACKGROUNDS="$(dirname "$0")/../backgrounds"
+# Copy theme from repo to omarchy themes directory
+echo "Copying One Dark Pro theme from local repository..."
+cp -r "$REPO_THEME_DIR" "$THEME_DEST"
 
-if [ -d "$BACKGROUNDS_DIR" ] && [ -z "$(ls -A "$BACKGROUNDS_DIR" 2>/dev/null | grep -E '\.(jpg|png)$')" ]; then
-    echo "Copying custom backgrounds..."
-    cp "$REPO_BACKGROUNDS"/* "$BACKGROUNDS_DIR/"
-    echo "Custom backgrounds copied!"
-elif [ ! -d "$BACKGROUNDS_DIR" ]; then
-    echo "Backgrounds directory doesn't exist, creating and copying..."
-    mkdir -p "$BACKGROUNDS_DIR"
-    cp "$REPO_BACKGROUNDS"/* "$BACKGROUNDS_DIR/"
-    echo "Custom backgrounds copied!"
-else
-    echo "Custom backgrounds already present, skipping"
+# Remove git directory if it was copied
+if [ -d "$THEME_DEST/.git" ]; then
+    rm -rf "$THEME_DEST/.git"
 fi
+
+echo "One Dark Pro theme installed successfully!"
+
+# Set as current theme
+omarchy-theme-set "one-dark-pro"
+echo "One Dark Pro theme set as current!"
