@@ -20,13 +20,8 @@ fi
 echo "Copying One Dark Pro theme from local repository..."
 cp -r "$REPO_THEME_DIR" "$THEME_DEST"
 
-# Remove git directory if it was copied
-if [ -d "$THEME_DEST/.git" ]; then
-    rm -rf "$THEME_DEST/.git"
-fi
-
-echo "One Dark Pro theme installed successfully!"
-
-# Set as current theme
-omarchy-theme-set "one-dark-pro"
-echo "One Dark Pro theme set as current!"
+# Always sync backgrounds to ensure they match the repo
+echo "Syncing custom backgrounds..."
+mkdir -p "$BACKGROUNDS_DIR"
+cp "$REPO_BACKGROUNDS"/* "$BACKGROUNDS_DIR/"
+echo "Custom backgrounds synced!"
