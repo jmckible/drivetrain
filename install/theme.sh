@@ -2,8 +2,10 @@
 
 SCRIPT_DIR="$(dirname "$0")"
 REPO_THEME_DIR="$SCRIPT_DIR/../themes/one-dark-pro"
+REPO_BACKGROUNDS="$REPO_THEME_DIR/backgrounds"
 OMARCHY_THEMES_DIR="$HOME/.config/omarchy/themes"
 THEME_DEST="$OMARCHY_THEMES_DIR/one-dark-pro"
+BACKGROUNDS_DIR="$HOME/Wallpapers"
 
 echo "Installing One Dark Pro theme for Omarchy..."
 
