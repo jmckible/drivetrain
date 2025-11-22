@@ -7,23 +7,23 @@ OMARCHY_THEMES_DIR="$HOME/.config/omarchy/themes"
 THEME_DEST="$OMARCHY_THEMES_DIR/one-dark-pro"
 BACKGROUNDS_DIR="$HOME/Wallpapers"
 
-echo "Installing One Dark Pro theme for Omarchy..."
+echo -e "${BLUE}▸${RESET} Installing One Dark Pro theme..."
 
 # Create themes directory if it doesn't exist
 mkdir -p "$OMARCHY_THEMES_DIR"
 
 # Remove existing theme if present
 if [ -d "$THEME_DEST" ]; then
-    echo "Removing existing One Dark Pro theme..."
+    echo -e "${DIM}  Removing existing theme...${RESET}"
     rm -rf "$THEME_DEST"
 fi
 
 # Copy theme from repo to omarchy themes directory
-echo "Copying One Dark Pro theme from local repository..."
+echo -e "${DIM}  Copying theme files...${RESET}"
 cp -r "$REPO_THEME_DIR" "$THEME_DEST"
 
 # Always sync backgrounds to ensure they match the repo
-echo "Syncing custom backgrounds..."
+echo -e "${BLUE}▸${RESET} Syncing wallpapers..."
 mkdir -p "$BACKGROUNDS_DIR"
 cp "$REPO_BACKGROUNDS"/* "$BACKGROUNDS_DIR/"
-echo "Custom backgrounds synced!"
+echo -e "${GREEN}✓${RESET} Theme and wallpapers installed"

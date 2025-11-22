@@ -2,26 +2,29 @@
 
 # Install Ruby dev environment if not already installed
 if ! command -v ruby &> /dev/null; then
-    echo "Installing Ruby dev environment..."
+    echo -e "${BLUE}▸${RESET} Installing Ruby dev environment..."
     omarchy-install-dev-env ruby
+    echo -e "${GREEN}✓${RESET} Ruby installed"
 else
-    echo "Ruby already installed, skipping"
+    echo -e "${GREEN}✓${RESET} Ruby already installed"
 fi
 
 # Install Node dev environment if not already installed
 if ! command -v node &> /dev/null; then
-    echo "Installing Node dev environment..."
+    echo -e "${BLUE}▸${RESET} Installing Node dev environment..."
     omarchy-install-dev-env node
+    echo -e "${GREEN}✓${RESET} Node installed"
 else
-    echo "Node already installed, skipping"
+    echo -e "${GREEN}✓${RESET} Node already installed"
 fi
 
 # Install Dropbox if not already installed
 if ! command -v dropbox &> /dev/null && ! pacman -Qi dropbox &> /dev/null; then
-    echo "Installing Dropbox..."
+    echo -e "${BLUE}▸${RESET} Installing Dropbox..."
     omarchy-install-dropbox
+    echo -e "${GREEN}✓${RESET} Dropbox installed"
 else
-    echo "Dropbox already installed, skipping"
+    echo -e "${GREEN}✓${RESET} Dropbox already installed"
 fi
 
 # Install Steam if not already installed (skip on laptop - no gaming on MacBook)
@@ -31,10 +34,11 @@ if [[ -f /tmp/drivetrain-machine-type ]]; then
 fi
 
 if [[ "$MACHINE_TYPE" == "laptop" ]]; then
-    echo "Laptop detected - skipping Steam installation"
+    echo -e "${DIM}○ Skipping Steam (laptop)${RESET}"
 elif ! pacman -Qi steam &> /dev/null; then
-    echo "Installing Steam..."
+    echo -e "${BLUE}▸${RESET} Installing Steam..."
     omarchy-install-steam
+    echo -e "${GREEN}✓${RESET} Steam installed"
 else
-    echo "Steam already installed, skipping"
+    echo -e "${GREEN}✓${RESET} Steam already installed"
 fi
