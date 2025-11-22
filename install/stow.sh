@@ -13,10 +13,14 @@ rm -rf ~/.config/hypr
 rm -rf ~/.config/alacritty
 rm -rf ~/.config/ghostty
 rm -rf ~/.local/bin
+rm -rf ~/.config/git
+rm -f ~/.bashrc ~/.bash_profile ~/.bash_logout
 stow -d "$STOW_DIR" -t ~ nvim
 stow -d "$STOW_DIR" -t ~ waybar
 stow -d "$STOW_DIR" -t ~ ghostty
 stow -d "$STOW_DIR" -t ~ bin
+stow -d "$STOW_DIR" -t ~ git
+stow -d "$STOW_DIR" -t ~ bash
 
 # Restart waybar to pick up new config
 if command -v omarchy-restart-waybar &> /dev/null; then
