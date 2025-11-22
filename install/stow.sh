@@ -98,6 +98,10 @@ if [[ $MACHINE_TYPE == "desktop" || $MACHINE_TYPE == "laptop" ]]; then
     # Copy alacritty config
     mkdir -p ~/.config/alacritty
     cp "$TEMPLATE_DIR/alacritty/alacritty.toml" ~/.config/alacritty/alacritty.toml
+
+    # Copy ghostty hardware-specific config
+    mkdir -p ~/.config/ghostty
+    cp "$TEMPLATE_DIR/ghostty/config" ~/.config/ghostty/hardware.conf
 else
     echo "Invalid machine type. Please manually edit configs in ~/.config/hypr/"
 fi
