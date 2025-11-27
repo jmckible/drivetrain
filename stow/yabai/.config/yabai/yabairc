@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+
+# Load scripting addition (required for space control)
+sudo yabai --load-sa
+
+# Set layout to BSP (binary space partitioning)
+yabai -m config layout bsp
+
+# Padding and gaps
+yabai -m config top_padding    8
+yabai -m config bottom_padding 8
+yabai -m config left_padding   8
+yabai -m config right_padding  8
+yabai -m config window_gap     8
+
+# Mouse settings
+yabai -m config mouse_follows_focus off
+yabai -m config focus_follows_mouse off
+
+# Window modifications
+yabai -m config window_shadow float
+
+# Floating windows for certain apps
+yabai -m rule --add app="^System Settings$" manage=off
+yabai -m rule --add app="^Calculator$" manage=off
+yabai -m rule --add app="^Finder$" manage=off
+
+# Auto-balance on window close
+yabai -m signal --add event=window_destroyed action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse"

@@ -19,6 +19,30 @@ for tool in $REQUIRED_TOOLS; do
     fi
 done
 
+# Install yabai and skhd for tiling window management
+echo "Installing yabai and skhd..."
+if ! command -v yabai &> /dev/null; then
+    echo "Installing yabai..."
+    brew install koekeishiya/formulae/yabai
+else
+    echo "yabai already installed"
+fi
+
+if ! command -v skhd &> /dev/null; then
+    echo "Installing skhd..."
+    brew install koekeishiya/formulae/skhd
+else
+    echo "skhd already installed"
+fi
+
+# Install Ghostty terminal
+if ! test -d /Applications/Ghostty.app; then
+    echo "Installing Ghostty..."
+    brew install --cask ghostty
+else
+    echo "Ghostty already installed"
+fi
+
 STOW_DIR="$(pwd)/stow"
 
 # Backup existing nvim config if it exists
@@ -67,8 +91,83 @@ cat > ~/.config/nvim/lazyvim.json << 'EOF'
 }
 EOF
 
+# Set up yabai configuration
+echo "Setting up yabai configuration..."
+if [[ -e ~/.config/yabai ]]; then
+    BACKUP_DIR=~/.config/yabai.backup.$(date +%Y%m%d_%H%M%S)
+    echo "Backing up existing yabai config to $BACKUP_DIR"
+    mv ~/.config/yabai "$BACKUP_DIR"
+fi
+stow -d "$STOW_DIR" -t ~ yabai
+
+# Set up skhd configuration
+echo "Setting up skhd configuration..."
+if [[ -e ~/.config/skhd ]]; then
+    BACKUP_DIR=~/.config/skhd.backup.$(date +%Y%m%d_%H%M%S)
+    echo "Backing up existing skhd config to $BACKUP_DIR"
+    mv ~/.config/skhd "$BACKUP_DIR"
+fi
+stow -d "$STOW_DIR" -t ~ skhd
+
+# Set up macOS-specific Ghostty configuration
+echo "Setting up Ghostty configuration for macOS..."
+if [[ -e ~/.config/ghostty/config ]]; then
+    BACKUP_FILE=~/.config/ghostty/config.backup.$(date +%Y%m%d_%H%M%S)
+    echo "Backing up existing ghostty config to $BACKUP_FILE"
+    mv ~/.config/ghostty/config "$BACKUP_FILE"
+fi
+mkdir -p ~/.config/ghostty
+cp "$STOW_DIR/ghostty/.config/ghostty/config.macos" ~/.config/ghostty/config
+
+# Set up yabai sudoers file for scripting addition
+echo "Setting up yabai sudoers file..."
+if [[ -f /private/etc/sudoers.d/yabai ]]; then
+    sudo rm /private/etc/sudoers.d/yabai
+fi
+echo "$(whoami) ALL=(root) NOPASSWD: sha256:$(shasum -a 256 $(which yabai) | cut -d " " -f 1) $(which yabai) --load-sa" | sudo tee /private/etc/sudoers.d/yabai
+
+# Load yabai scripting addition (must be done before Dock restart)
+echo "Loading yabai scripting addition..."
+sudo yabai --load-sa
+
+# Configure macOS animations for instant workspace switching
+echo "Configuring system animations..."
+defaults write com.apple.dock workspaces-swoosh-animation-off -bool YES
+defaults write com.apple.dock expose-animation-duration -float 0.04
+killall Dock
+
+# Wait for Dock to restart
+echo "Waiting for Dock to restart..."
+sleep 3
+
+# Re-load scripting addition after Dock restart
+echo "Re-loading yabai scripting addition..."
+sudo yabai --load-sa
+
+# Start services
+echo "Starting yabai and skhd services..."
+yabai --start-service
+skhd --start-service
+
 echo ""
 echo "macOS setup complete!"
-echo "Neovim config copied from drivetrain (with macOS-specific fixes)."
-echo "Note: This is a copy, not a symlink - your Linux config is untouched."
+echo ""
+echo "Installed and configured:"
+echo "  - Neovim (with macOS-specific fixes)"
+echo "  - yabai (tiling window manager)"
+echo "  - skhd (hotkey daemon)"
+echo "  - Ghostty terminal"
+echo ""
+echo "Next steps:"
+echo "  1. See README-MACOS.md for complete setup instructions"
+echo "  2. Disable SIP partially (requires Recovery Mode - see README)"
+echo "  3. Set boot argument if Apple Silicon (see README)"
+echo "  4. Disable conflicting system shortcuts in System Settings"
+echo "  5. Create multiple desktops/spaces in Mission Control"
+echo "  6. Optional: Enable 'Reduce motion' in Accessibility settings"
+echo ""
+echo "Key bindings quick reference:"
+echo "  - Option+h/j/k/l: Focus window (left/down/up/right)"
+echo "  - Option+1-9: Switch to space 1-9"
+echo "  - Option+Return: Open Ghostty terminal"
 echo ""

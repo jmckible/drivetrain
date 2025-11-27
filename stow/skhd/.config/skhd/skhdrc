@@ -1,0 +1,108 @@
+# Window focus (vim-style navigation, similar to Hyprland SUPER + arrows)
+# Using alt to avoid conflicts with cmd + h (Hide Window)
+alt - h : yabai -m window --focus west
+alt - j : yabai -m window --focus south
+alt - k : yabai -m window --focus north
+alt - l : yabai -m window --focus east
+
+# Alternative: Arrow keys
+# Using alt to avoid conflicts with cmd + arrows (text navigation)
+alt - left : yabai -m window --focus west
+alt - down : yabai -m window --focus south
+alt - up : yabai -m window --focus north
+alt - right : yabai -m window --focus east
+
+# Move windows (similar to Hyprland SUPER + SHIFT + arrows)
+# Using shift + alt to be consistent with focus bindings
+shift + alt - h : yabai -m window --swap west
+shift + alt - j : yabai -m window --swap south
+shift + alt - k : yabai -m window --swap north
+shift + alt - l : yabai -m window --swap east
+
+# Alternative: Arrow keys
+shift + alt - left : yabai -m window --swap west
+shift + alt - down : yabai -m window --swap south
+shift + alt - up : yabai -m window --swap north
+shift + alt - right : yabai -m window --swap right
+
+# Resize windows (similar to Hyprland resize)
+# Using ctrl + alt to avoid common shortcuts
+ctrl + alt - h : yabai -m window --resize left:-50:0 || yabai -m window --resize right:-50:0
+ctrl + alt - j : yabai -m window --resize bottom:0:50 || yabai -m window --resize top:0:50
+ctrl + alt - k : yabai -m window --resize top:0:-50 || yabai -m window --resize bottom:0:-50
+ctrl + alt - l : yabai -m window --resize right:50:0 || yabai -m window --resize left:50:0
+
+# Alternative: Arrow keys
+ctrl + alt - left : yabai -m window --resize left:-50:0 || yabai -m window --resize right:-50:0
+ctrl + alt - down : yabai -m window --resize bottom:0:50 || yabai -m window --resize top:0:50
+ctrl + alt - up : yabai -m window --resize top:0:-50 || yabai -m window --resize bottom:0:-50
+ctrl + alt - right : yabai -m window --resize right:50:0 || yabai -m window --resize left:50:0
+
+# Switch spaces/desktops (similar to Hyprland SUPER + [1-9])
+# Using alt to avoid conflicts with cmd + number shortcuts in apps
+alt - 1 : yabai -m space --focus 1
+alt - 2 : yabai -m space --focus 2
+alt - 3 : yabai -m space --focus 3
+alt - 4 : yabai -m space --focus 4
+alt - 5 : yabai -m space --focus 5
+alt - 6 : yabai -m space --focus 6
+alt - 7 : yabai -m space --focus 7
+alt - 8 : yabai -m space --focus 8
+alt - 9 : yabai -m space --focus 9
+
+# Cycle through spaces (similar to Hyprland SUPER + TAB)
+# Note: cmd + tab is reserved for app switching on macOS
+alt - tab : yabai -m space --focus next || yabai -m space --focus first
+alt + shift - tab : yabai -m space --focus prev || yabai -m space --focus last
+
+# Move window to space (similar to Hyprland SUPER + SHIFT + [1-9])
+# Using shift + alt to avoid conflicts with app shortcuts
+shift + alt - 1 : yabai -m window --space 1
+shift + alt - 2 : yabai -m window --space 2
+shift + alt - 3 : yabai -m window --space 3
+shift + alt - 4 : yabai -m window --space 4
+shift + alt - 5 : yabai -m window --space 5
+shift + alt - 6 : yabai -m window --space 6
+shift + alt - 7 : yabai -m window --space 7
+shift + alt - 8 : yabai -m window --space 8
+shift + alt - 9 : yabai -m window --space 9
+
+# Move window to space and follow (similar to Hyprland workflow)
+# Using ctrl for the "and follow" variant
+ctrl + shift + alt - 1 : yabai -m window --space 1 && yabai -m space --focus 1
+ctrl + shift + alt - 2 : yabai -m window --space 2 && yabai -m space --focus 2
+ctrl + shift + alt - 3 : yabai -m window --space 3 && yabai -m space --focus 3
+ctrl + shift + alt - 4 : yabai -m window --space 4 && yabai -m space --focus 4
+ctrl + shift + alt - 5 : yabai -m window --space 5 && yabai -m space --focus 5
+ctrl + shift + alt - 6 : yabai -m window --space 6 && yabai -m space --focus 6
+ctrl + shift + alt - 7 : yabai -m window --space 7 && yabai -m space --focus 7
+ctrl + shift + alt - 8 : yabai -m window --space 8 && yabai -m space --focus 8
+ctrl + shift + alt - 9 : yabai -m window --space 9 && yabai -m space --focus 9
+
+# Window actions
+# Toggle float (similar to Hyprland SUPER + T)
+# Using shift + alt + space to avoid conflict with cmd + t (New Tab)
+shift + alt - space : yabai -m window --toggle float
+
+# Fullscreen (similar to Hyprland SUPER + F)
+# Using alt to avoid conflict with cmd + f (Find)
+alt - f : yabai -m window --toggle zoom-fullscreen
+
+# Close window (Hyprland SUPER + W)
+# Note: cmd + w is already the system shortcut for closing windows
+# cmd - w : works natively
+
+# yabai-specific features (not in Hyprland but useful)
+# Rotate tree
+alt - r : yabai -m space --rotate 90
+
+# Balance windows
+alt - e : yabai -m space --balance
+
+# Toggle split direction
+# Using alt + s to avoid conflict with cmd + s (Save)
+alt - s : yabai -m window --toggle split
+
+# Launch terminal (similar to Hyprland SUPER + Return)
+# cmd + return is safe - few apps use this
+cmd - return : open -na /Applications/Ghostty.app
