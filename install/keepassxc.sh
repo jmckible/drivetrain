@@ -2,8 +2,9 @@
 
 # Install KeePassXC if not already installed
 if ! pacman -Qi keepassxc &> /dev/null; then
-    echo "Installing KeePassXC..."
+    echo -e "${BLUE}▸${RESET} Installing KeePassXC..."
     sudo pacman -S --noconfirm --needed keepassxc
+    echo -e "${GREEN}✓${RESET} KeePassXC installed"
 else
-    echo "KeePassXC already installed, skipping"
+    echo -e "${GREEN}✓${RESET} KeePassXC already installed"
 fi

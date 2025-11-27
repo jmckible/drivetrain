@@ -71,13 +71,13 @@ fi
 # Determine final machine type
 if [[ "$MACHINE_TYPE_ARG" == "desktop" ]]; then
     MACHINE_TYPE="desktop"
-    echo "Using machine type: desktop (from command-line argument)"
+    echo -e "${BLUE}▸${RESET} Using machine type: ${BOLD}desktop${RESET} ${DIM}(from argument)${RESET}"
 elif [[ "$MACHINE_TYPE_ARG" == "laptop" ]]; then
     MACHINE_TYPE="laptop"
-    echo "Using machine type: laptop (from command-line argument)"
+    echo -e "${BLUE}▸${RESET} Using machine type: ${BOLD}laptop${RESET} ${DIM}(from argument)${RESET}"
 else
     MACHINE_TYPE="$DETECTED_TYPE"
-    echo "Using machine type: $MACHINE_TYPE (auto-detected $DETECTED_MSG)"
+    echo -e "${BLUE}▸${RESET} Using machine type: ${BOLD}$MACHINE_TYPE${RESET} ${DIM}(auto-detected $DETECTED_MSG)${RESET}"
 fi
 
 # Save machine type for other scripts to use
@@ -85,7 +85,7 @@ echo "$MACHINE_TYPE" > /tmp/drivetrain-machine-type
 
 # Copy hardware-specific templates
 if [[ $MACHINE_TYPE == "desktop" || $MACHINE_TYPE == "laptop" ]]; then
-    echo "Configuring for $MACHINE_TYPE..."
+    echo -e "${DIM}  Applying hardware-specific configs...${RESET}"
 
     TEMPLATE_DIR="$(pwd)/templates/$MACHINE_TYPE"
 
@@ -98,6 +98,10 @@ if [[ $MACHINE_TYPE == "desktop" || $MACHINE_TYPE == "laptop" ]]; then
     # Copy alacritty config
     mkdir -p ~/.config/alacritty
     cp "$TEMPLATE_DIR/alacritty/alacritty.toml" ~/.config/alacritty/alacritty.toml
+
+    # Copy ghostty hardware-specific config
+    mkdir -p ~/.config/ghostty
+    cp "$TEMPLATE_DIR/ghostty/config" ~/.config/ghostty/hardware.conf
 else
     echo "Invalid machine type. Please manually edit configs in ~/.config/hypr/"
 fi
@@ -111,6 +115,4 @@ sleep 1
 uwsm-app -- elephant &>/dev/null &
 uwsm-app -- walker --gapplication-service &>/dev/null &
 
-echo ""
-echo "Hyprland configuration complete!"
-echo ""
+echo -e "${GREEN}✓${RESET} Configuration deployed successfully"

@@ -4,7 +4,9 @@ config-file = ?"~/.config/omarchy/current/theme/ghostty.conf"
 # Font
 font-family = "JetBrainsMono Nerd Font Mono"
 font-style = Regular
-font-size = 6.5
+
+# Hardware-specific settings (font size) - must come after font-family
+config-file = ~/.config/ghostty/hardware.conf
 
 # Window
 window-padding-x = 14
