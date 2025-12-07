@@ -88,7 +88,7 @@ header "📦 Configuration Deployment"
 
 header "⌨️  Additional Components"
 ./install/keyd.sh
-./install/firefox.sh
+./install/helium.sh
 ./install/keepassxc.sh
 ./install/transmission.sh
 ./install/slack.sh

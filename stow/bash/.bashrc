@@ -17,3 +17,4 @@ function home() {
     cd ~ && clear
 }
 alias h='home'
+export PATH="$HOME/.local/bin:$PATH"
