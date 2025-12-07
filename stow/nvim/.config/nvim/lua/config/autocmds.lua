@@ -12,6 +12,11 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = "*",
   group = vim.api.nvim_create_augroup("strip_trailing_whitespace", { clear = true }),
   callback = function()
+    -- Skip for JavaScript files temporarily for debugging
+    if vim.bo.filetype == "javascript" or vim.bo.filetype == "javascriptreact" then
+      return
+    end
+
     -- Save cursor position
     local save_cursor = vim.fn.getpos(".")
     -- Remove trailing whitespace
