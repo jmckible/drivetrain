@@ -27,6 +27,15 @@ else
     echo -e "${GREEN}✓${RESET} Dropbox already installed"
 fi
 
+# Enable Dropbox auto-start
+if systemctl --user is-enabled dropbox &>/dev/null; then
+    echo -e "${GREEN}✓${RESET} Dropbox auto-start already enabled"
+else
+    echo -e "${BLUE}▸${RESET} Enabling Dropbox auto-start..."
+    systemctl --user enable dropbox
+    echo -e "${GREEN}✓${RESET} Dropbox will start automatically on boot"
+fi
+
 # Install Steam if not already installed (skip on laptop - no gaming on MacBook)
 MACHINE_TYPE=""
 if [[ -f /tmp/drivetrain-machine-type ]]; then

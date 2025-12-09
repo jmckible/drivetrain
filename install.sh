@@ -88,12 +88,12 @@ header "📦 Configuration Deployment"
 
 header "⌨️  Additional Components"
 ./install/keyd.sh
+./install/omarchy-packages.sh
 ./install/helium.sh
 ./install/keepassxc.sh
 ./install/transmission.sh
 ./install/slack.sh
 ./install/cpulimit.sh
-./install/omarchy-packages.sh
 ./install/claude-code.sh
 
 # Final summary
