@@ -3,9 +3,6 @@
 # Remove unwanted packages that come with Omarchy by default
 
 UNWANTED_PACKAGES=(
-    "1password"
-    "1password-beta"
-    "1password-cli"
     "signal-desktop"
     "obs-studio"
 )

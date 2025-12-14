@@ -1,0 +1,112 @@
+#!/bin/bash
+
+# Automatically selects wallpaper based on time of day
+# Uses sunwait to calculate sunrise/sunset times and backgrounds.conf for mapping
+
+BACKGROUNDS_DIR="$HOME/.config/omarchy/current/theme/backgrounds"
+CONFIG_FILE="$HOME/.config/omarchy/current/theme/backgrounds.conf"
+CURRENT_BACKGROUND_LINK="$HOME/.config/omarchy/current/background"
+
+# Default location (Petaluma, CA) - overridden by config
+LATITUDE="38.23N"
+LONGITUDE="122.64W"
+
+# Load config if it exists
+if [[ -f "$CONFIG_FILE" ]]; then
+    source "$CONFIG_FILE"
+fi
+
+# Get current time in minutes since midnight
+NOW_MINUTES=$(date +%H%M | awk '{h=int($1/100); m=$1%100; print h*60+m}')
+
+# Calculate sunrise and sunset times using sunwait
+# Format: HHMM
+if ! command -v sunwait &> /dev/null; then
+    echo "sunwait not installed, falling back to omarchy-theme-bg-next"
+    exec omarchy-theme-bg-next
+    exit
+fi
+
+# Get today's sunrise and sunset
+SUNRISE_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $1}')
+SUNSET_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $2}')
+
+# Convert to minutes since midnight
+SUNRISE_MINUTES=$(echo "$SUNRISE_TIME" | awk -F: '{print $1*60 + $2}')
+SUNSET_MINUTES=$(echo "$SUNSET_TIME" | awk -F: '{print $1*60 + $2}')
+
+# Calculate period boundaries (in minutes since midnight)
+PRE_DAWN_START=$((SUNRISE_MINUTES - 90))
+MORNING_END=$((SUNRISE_MINUTES + 180))
+AFTERNOON_START=$((SUNSET_MINUTES - 180))
+EVENING_START=$((SUNSET_MINUTES - 60))
+DUSK_END=$((SUNSET_MINUTES + 30))
+
+# Determine current period
+if [[ $NOW_MINUTES -ge $PRE_DAWN_START && $NOW_MINUTES -lt $SUNRISE_MINUTES ]]; then
+    PERIOD="PRE_DAWN"
+elif [[ $NOW_MINUTES -ge $SUNRISE_MINUTES && $NOW_MINUTES -lt $MORNING_END ]]; then
+    PERIOD="MORNING"
+elif [[ $NOW_MINUTES -ge $MORNING_END && $NOW_MINUTES -lt $AFTERNOON_START ]]; then
+    PERIOD="MIDDAY"
+elif [[ $NOW_MINUTES -ge $AFTERNOON_START && $NOW_MINUTES -lt $EVENING_START ]]; then
+    PERIOD="AFTERNOON"
+elif [[ $NOW_MINUTES -ge $EVENING_START && $NOW_MINUTES -lt $SUNSET_MINUTES ]]; then
+    PERIOD="EVENING"
+elif [[ $NOW_MINUTES -ge $SUNSET_MINUTES && $NOW_MINUTES -lt $DUSK_END ]]; then
+    PERIOD="DUSK"
+else
+    PERIOD="NIGHT"
+fi
+
+# Get wallpapers for this period from config
+PERIOD_VAR="${PERIOD}"
+PERIOD_WALLPAPERS="${!PERIOD_VAR}"
+
+# If no config or empty period, fall back to all wallpapers
+if [[ -z "$PERIOD_WALLPAPERS" ]]; then
+    mapfile -d '' -t ALL_BACKGROUNDS < <(find -L "$BACKGROUNDS_DIR" -type f -print0 | sort -z)
+    if [[ ${#ALL_BACKGROUNDS[@]} -eq 0 ]]; then
+        notify-send "No wallpapers found" -t 2000
+        exit 1
+    fi
+    # Pick random wallpaper
+    RANDOM_INDEX=$((RANDOM % ${#ALL_BACKGROUNDS[@]}))
+    NEW_BACKGROUND="${ALL_BACKGROUNDS[$RANDOM_INDEX]}"
+else
+    # Convert space-separated list to array
+    read -ra WALLPAPER_NAMES <<< "$PERIOD_WALLPAPERS"
+
+    # Build full paths
+    PERIOD_BACKGROUNDS=()
+    for name in "${WALLPAPER_NAMES[@]}"; do
+        FULL_PATH="$BACKGROUNDS_DIR/$name"
+        if [[ -f "$FULL_PATH" ]]; then
+            PERIOD_BACKGROUNDS+=("$FULL_PATH")
+        fi
+    done
+
+    # Pick random from period wallpapers
+    if [[ ${#PERIOD_BACKGROUNDS[@]} -eq 0 ]]; then
+        notify-send "No wallpapers for $PERIOD period" -t 2000
+        exit 1
+    fi
+
+    RANDOM_INDEX=$((RANDOM % ${#PERIOD_BACKGROUNDS[@]}))
+    NEW_BACKGROUND="${PERIOD_BACKGROUNDS[$RANDOM_INDEX]}"
+fi
+
+# Only change if different from current
+CURRENT_BACKGROUND=""
+if [[ -L "$CURRENT_BACKGROUND_LINK" ]]; then
+    CURRENT_BACKGROUND=$(readlink "$CURRENT_BACKGROUND_LINK")
+fi
+
+if [[ "$NEW_BACKGROUND" != "$CURRENT_BACKGROUND" ]]; then
+    # Set new background symlink
+    ln -nsf "$NEW_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
+
+    # Relaunch swaybg
+    pkill -x swaybg
+    setsid uwsm-app -- swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill >/dev/null 2>&1 &
+fi

@@ -21,6 +21,7 @@ stow -d "$STOW_DIR" -t ~ ghostty
 stow -d "$STOW_DIR" -t ~ bin
 stow -d "$STOW_DIR" -t ~ git
 stow -d "$STOW_DIR" -t ~ bash
+stow -d "$STOW_DIR" -t ~ systemd
 
 # Restart waybar to pick up new config
 if command -v omarchy-restart-waybar &> /dev/null; then
@@ -119,5 +120,14 @@ pkill -f "walker --gapplication-service"
 sleep 1
 uwsm-app -- elephant &>/dev/null &
 uwsm-app -- walker --gapplication-service &>/dev/null &
+
+# Enable and start wallpaper auto-rotation timer
+if [[ -f ~/.config/systemd/user/omarchy-wallpaper-auto.timer ]]; then
+    echo -e "${BLUE}▸${RESET} Enabling wallpaper auto-rotation timer..."
+    systemctl --user daemon-reload
+    systemctl --user enable omarchy-wallpaper-auto.timer
+    systemctl --user start omarchy-wallpaper-auto.timer
+    echo -e "${GREEN}✓${RESET} Wallpaper auto-rotation enabled"
+fi
 
 echo -e "${GREEN}✓${RESET} Configuration deployed successfully"

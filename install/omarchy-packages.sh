@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Install sunwait for sunrise/sunset calculations
+if ! command -v sunwait &> /dev/null; then
+    echo -e "${BLUE}▸${RESET} Installing sunwait..."
+    yay -S --noconfirm sunwait
+    echo -e "${GREEN}✓${RESET} sunwait installed"
+else
+    echo -e "${GREEN}✓${RESET} sunwait already installed"
+fi
+
 # Install Ruby dev environment if not already installed
 if ! command -v ruby &> /dev/null; then
     echo -e "${BLUE}▸${RESET} Installing Ruby dev environment..."

@@ -1,0 +1,11 @@
+[Unit]
+Description=Omarchy Automatic Wallpaper Rotation
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/omarchy-theme-bg-auto
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target
