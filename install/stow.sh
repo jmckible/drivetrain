@@ -123,7 +123,7 @@ uwsm-app -- walker --gapplication-service &>/dev/null &
 
 # Enable and start wallpaper auto-rotation timer
 if [[ -f ~/.config/systemd/user/omarchy-wallpaper-auto.timer ]]; then
-    echo -e "${BLUE}▸${RESET} Enabling wallpaper auto-rotation timer..."
+    echo -e "${BLUE}▸${RESET} Enabling wallpaper auto-rotation..."
     systemctl --user daemon-reload
     systemctl --user enable omarchy-wallpaper-auto.timer
     systemctl --user start omarchy-wallpaper-auto.timer
