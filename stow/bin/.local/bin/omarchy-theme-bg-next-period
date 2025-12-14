@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# Cycles through backgrounds for the current time period only
+# Similar to omarchy-theme-bg-auto but doesn't randomize - cycles sequentially
+
+BACKGROUNDS_DIR="$HOME/.config/omarchy/current/theme/backgrounds"
+CONFIG_FILE="$HOME/.config/omarchy/current/theme/backgrounds.conf"
+CURRENT_BACKGROUND_LINK="$HOME/.config/omarchy/current/background"
+
+# Default location (Petaluma, CA) - overridden by config
+LATITUDE="38.23N"
+LONGITUDE="122.64W"
+
+# Load config if it exists
+if [[ -f "$CONFIG_FILE" ]]; then
+    source "$CONFIG_FILE"
+fi
+
+# Get current time in minutes since midnight
+NOW_MINUTES=$(date +%H%M | awk '{h=int($1/100); m=$1%100; print h*60+m}')
+
+# Calculate sunrise and sunset times using sunwait
+if ! command -v sunwait &> /dev/null; then
+    echo "sunwait not installed, falling back to omarchy-theme-bg-next"
+    exec omarchy-theme-bg-next
+    exit
+fi
+
+# Get today's sunrise and sunset
+SUNRISE_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $1}')
+SUNSET_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $2}')
+
+# Convert to minutes since midnight
+SUNRISE_MINUTES=$(echo "$SUNRISE_TIME" | awk -F: '{print $1*60 + $2}')
+SUNSET_MINUTES=$(echo "$SUNSET_TIME" | awk -F: '{print $1*60 + $2}')
+
+# Calculate period boundaries (in minutes since midnight)
+PRE_DAWN_START=$((SUNRISE_MINUTES - 90))
+MORNING_END=$((SUNRISE_MINUTES + 180))
+AFTERNOON_START=$((SUNSET_MINUTES - 180))
+EVENING_START=$((SUNSET_MINUTES - 60))
+DUSK_END=$((SUNSET_MINUTES + 30))
+
+# Determine current period
+if [[ $NOW_MINUTES -ge $PRE_DAWN_START && $NOW_MINUTES -lt $SUNRISE_MINUTES ]]; then
+    PERIOD="PRE_DAWN"
+elif [[ $NOW_MINUTES -ge $SUNRISE_MINUTES && $NOW_MINUTES -lt $MORNING_END ]]; then
+    PERIOD="MORNING"
+elif [[ $NOW_MINUTES -ge $MORNING_END && $NOW_MINUTES -lt $AFTERNOON_START ]]; then
+    PERIOD="MIDDAY"
+elif [[ $NOW_MINUTES -ge $AFTERNOON_START && $NOW_MINUTES -lt $EVENING_START ]]; then
+    PERIOD="AFTERNOON"
+elif [[ $NOW_MINUTES -ge $EVENING_START && $NOW_MINUTES -lt $SUNSET_MINUTES ]]; then
+    PERIOD="EVENING"
+elif [[ $NOW_MINUTES -ge $SUNSET_MINUTES && $NOW_MINUTES -lt $DUSK_END ]]; then
+    PERIOD="DUSK"
+else
+    PERIOD="NIGHT"
+fi
+
+# Get wallpapers for this period from config
+PERIOD_VAR="${PERIOD}"
+PERIOD_WALLPAPERS="${!PERIOD_VAR}"
+
+# If no config or empty period, fall back to all wallpapers
+if [[ -z "$PERIOD_WALLPAPERS" ]]; then
+    exec omarchy-theme-bg-next
+    exit
+fi
+
+# Convert multiline/space-separated list to array, filtering empty entries
+WALLPAPER_NAMES=()
+while IFS= read -r line; do
+    # Trim whitespace and skip empty lines
+    line=$(echo "$line" | xargs)
+    [[ -n "$line" ]] && WALLPAPER_NAMES+=("$line")
+done <<< "$PERIOD_WALLPAPERS"
+
+# Build full paths (sorted for consistent cycling)
+PERIOD_BACKGROUNDS=()
+for name in "${WALLPAPER_NAMES[@]}"; do
+    FULL_PATH="$BACKGROUNDS_DIR/$name"
+    if [[ -f "$FULL_PATH" ]]; then
+        PERIOD_BACKGROUNDS+=("$FULL_PATH")
+    fi
+done
+
+# Sort for consistent order
+IFS=$'\n' PERIOD_BACKGROUNDS=($(sort <<<"${PERIOD_BACKGROUNDS[*]}"))
+unset IFS
+
+if [[ ${#PERIOD_BACKGROUNDS[@]} -eq 0 ]]; then
+    notify-send "No wallpapers for $PERIOD period" -t 2000
+    exit 1
+fi
+
+# Get current background from symlink
+CURRENT_BACKGROUND=""
+if [[ -L "$CURRENT_BACKGROUND_LINK" ]]; then
+    CURRENT_BACKGROUND=$(readlink "$CURRENT_BACKGROUND_LINK")
+fi
+
+# Find current background index in this period's list
+INDEX=-1
+for i in "${!PERIOD_BACKGROUNDS[@]}"; do
+    if [[ "${PERIOD_BACKGROUNDS[$i]}" == "$CURRENT_BACKGROUND" ]]; then
+        INDEX=$i
+        break
+    fi
+done
+
+# Get next background (wrap around within period)
+if [[ $INDEX -eq -1 ]]; then
+    # Current background not in period list, use first
+    NEW_BACKGROUND="${PERIOD_BACKGROUNDS[0]}"
+else
+    NEXT_INDEX=$(((INDEX + 1) % ${#PERIOD_BACKGROUNDS[@]}))
+    NEW_BACKGROUND="${PERIOD_BACKGROUNDS[$NEXT_INDEX]}"
+fi
+
+# Update background symlink
+ln -nsf "$NEW_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
+
+# Always ensure swaybg is running (in case it was killed by suspend/resume)
+if ! pgrep -x swaybg >/dev/null; then
+    setsid uwsm-app -- swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill >/dev/null 2>&1 &
+elif [[ "$NEW_BACKGROUND" != "$CURRENT_BACKGROUND" ]]; then
+    # Background changed, restart swaybg
+    pkill -x swaybg
+    setsid uwsm-app -- swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill >/dev/null 2>&1 &
+fi

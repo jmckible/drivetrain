@@ -45,9 +45,11 @@ else
     echo -e "${GREEN}✓${RESET} Dropbox already installed"
 fi
 
-# Enable Dropbox auto-start
+# Enable Dropbox auto-start (skip if masked)
 if systemctl --user is-enabled dropbox &>/dev/null; then
     echo -e "${GREEN}✓${RESET} Dropbox auto-start already enabled"
+elif systemctl --user status dropbox 2>&1 | grep -q "masked"; then
+    echo -e "${DIM}○ Dropbox auto-start disabled (masked)${RESET}"
 else
     echo -e "${BLUE}▸${RESET} Enabling Dropbox auto-start..."
     systemctl --user enable dropbox
