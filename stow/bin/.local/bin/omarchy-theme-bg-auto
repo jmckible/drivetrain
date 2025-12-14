@@ -74,8 +74,13 @@ if [[ -z "$PERIOD_WALLPAPERS" ]]; then
     RANDOM_INDEX=$((RANDOM % ${#ALL_BACKGROUNDS[@]}))
     NEW_BACKGROUND="${ALL_BACKGROUNDS[$RANDOM_INDEX]}"
 else
-    # Convert space-separated list to array
-    read -ra WALLPAPER_NAMES <<< "$PERIOD_WALLPAPERS"
+    # Convert multiline/space-separated list to array, filtering empty entries
+    WALLPAPER_NAMES=()
+    while IFS= read -r line; do
+        # Trim whitespace and skip empty lines
+        line=$(echo "$line" | xargs)
+        [[ -n "$line" ]] && WALLPAPER_NAMES+=("$line")
+    done <<< "$PERIOD_WALLPAPERS"
 
     # Build full paths
     PERIOD_BACKGROUNDS=()

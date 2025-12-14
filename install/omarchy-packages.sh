@@ -9,6 +9,15 @@ else
     echo -e "${GREEN}✓${RESET} sunwait already installed"
 fi
 
+# Install magick Lua rock for image.nvim (Neovim uses LuaJIT/Lua 5.1)
+if ! luarocks --lua-version 5.1 list | grep -q "^magick"; then
+    echo -e "${BLUE}▸${RESET} Installing magick Lua rock..."
+    luarocks --lua-version 5.1 --local install magick
+    echo -e "${GREEN}✓${RESET} magick installed"
+else
+    echo -e "${GREEN}✓${RESET} magick already installed"
+fi
+
 # Install Ruby dev environment if not already installed
 if ! command -v ruby &> /dev/null; then
     echo -e "${BLUE}▸${RESET} Installing Ruby dev environment..."
