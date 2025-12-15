@@ -112,11 +112,13 @@ if [[ "$NEW_BACKGROUND" != "$CURRENT_BACKGROUND" ]]; then
     ln -nsf "$NEW_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
 fi
 
-# Always ensure swaybg is running (in case it was killed by suspend/resume)
-if ! pgrep -x swaybg >/dev/null; then
-    setsid uwsm-app -- swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill >/dev/null 2>&1 &
-elif [[ "$NEW_BACKGROUND" != "$CURRENT_BACKGROUND" ]]; then
-    # Background changed, restart swaybg
-    pkill -x swaybg
-    setsid uwsm-app -- swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill >/dev/null 2>&1 &
-fi
+# Always restart swaybg to ensure correct background is displayed
+# (Handles startup race conditions and ensures sync with current time period)
+pkill -x swaybg 2>/dev/null
+sleep 0.3
+
+# Start swaybg (uwsm-app handles backgrounding via systemd scopes)
+uwsm-app -- swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill &
+
+# Wait briefly for swaybg to start
+sleep 0.5
