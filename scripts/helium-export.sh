@@ -51,7 +51,7 @@ if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓${RESET} Bookmarks exported to $DROPBOX_BOOKMARKS"
 
     # Show bookmark count
-    BOOKMARK_COUNT=$(grep -o '"type":"url"' "$DROPBOX_BOOKMARKS" | wc -l)
+    BOOKMARK_COUNT=$(grep -o '"type": "url"' "$DROPBOX_BOOKMARKS" | wc -l)
     echo -e "${BLUE}ℹ${RESET} Exported $BOOKMARK_COUNT bookmarks"
 else
     echo -e "${RED}✗${RESET} Failed to export bookmarks"
