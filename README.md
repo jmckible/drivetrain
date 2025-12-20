@@ -12,7 +12,7 @@ cd ~/dev/drivetrain
 ./install.sh           # Auto-detect machine type
 # or
 ./install.sh desktop   # Force desktop configuration
-./install.sh laptop    # Force laptop configuration
+./install.sh laptop    # Force laptop configuration (uses macbookpro-2014 templates)
 ```
 
 The script will:
@@ -113,8 +113,8 @@ drivetrain/
 - Alacritty font size 6.5
 - Steam installed
 
-### Laptop (Auto-detected: Battery present)
-- 2012 MacBook Pro 15" Retina @ 1.5x scaling
+### MacBook Pro 2014 (Auto-detected: Battery present)
+- MacBookPro11,2 - Mid-2014 15" Retina @ 1.5x scaling
 - Integrated graphics (no NVIDIA)
 - Higher trackpad sensitivity (0.1)
 - Traditional scroll (non-natural)
@@ -122,6 +122,37 @@ drivetrain/
 - Alacritty font size 10
 - F12 key remapped to 7 (broken key workaround)
 - Steam skipped
+
+## Adding a New Machine
+
+When you get a new laptop or desktop with different hardware specs:
+
+1. **Create a new template directory**:
+   ```bash
+   cp -r templates/macbookpro-2014 templates/newmachine-2025
+   # Edit the configs in templates/newmachine-2025/ for your new hardware
+   ```
+
+2. **Update the machine type mapping** in `install/stow.sh`:
+   ```bash
+   # Map machine type to specific template directory
+   if [[ $MACHINE_TYPE == "laptop" ]]; then
+       # Update this line to point to your new template:
+       TEMPLATE_NAME="newmachine-2025"
+   else
+       TEMPLATE_NAME="$MACHINE_TYPE"
+   fi
+   ```
+
+3. **Update keyd config** if needed:
+   ```bash
+   cp templates/keyd/macbookpro-2014.conf templates/keyd/newmachine-2025.conf
+   # Edit as needed, then update install/keyd.sh
+   ```
+
+4. **Update this README** with the new machine's specs
+
+This approach keeps machine-specific configs identifiable while maintaining generic auto-detection.
 
 ## Theme Management
 
@@ -287,7 +318,7 @@ git pull
 ./install/stow.sh           # Auto-detect and update symlinks
 # or
 ./install/stow.sh desktop   # Force desktop configuration
-./install/stow.sh laptop    # Force laptop configuration
+./install/stow.sh laptop    # Force laptop configuration (uses macbookpro-2014 templates)
 ```
 
 ### Full reinstall
@@ -297,7 +328,7 @@ git pull
 ./install.sh           # Auto-detect and run everything
 # or
 ./install.sh desktop   # Force desktop configuration
-./install.sh laptop    # Force laptop configuration
+./install.sh laptop    # Force laptop configuration (uses macbookpro-2014 templates)
 ```
 
 ### Merge Omarchy updates

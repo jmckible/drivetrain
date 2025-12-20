@@ -2,6 +2,7 @@
 
 # Usage: ./install.sh [desktop|laptop]
 # If no argument provided, auto-detection will be used
+# Note: "laptop" maps to macbookpro-2014 template directory
 
 # Colors and formatting
 export BOLD='\033[1m'

@@ -84,11 +84,19 @@ fi
 # Save machine type for other scripts to use
 echo "$MACHINE_TYPE" > /tmp/drivetrain-machine-type
 
+# Map machine type to specific template directory
+# This allows for machine-specific configs (e.g., macbookpro-2014) while keeping generic detection
+if [[ $MACHINE_TYPE == "laptop" ]]; then
+    TEMPLATE_NAME="macbookpro-2014"
+else
+    TEMPLATE_NAME="$MACHINE_TYPE"
+fi
+
 # Copy hardware-specific templates
 if [[ $MACHINE_TYPE == "desktop" || $MACHINE_TYPE == "laptop" ]]; then
     echo -e "${DIM}  Applying hardware-specific configs...${RESET}"
 
-    TEMPLATE_DIR="$(pwd)/templates/$MACHINE_TYPE"
+    TEMPLATE_DIR="$(pwd)/templates/$TEMPLATE_NAME"
 
     # Copy hypr configs
     cp "$TEMPLATE_DIR/hypr/monitors.conf" ~/.config/hypr/monitors.conf

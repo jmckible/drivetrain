@@ -6,7 +6,7 @@ This directory contains the keyd configuration for low-level key remapping.
 
 - **default.conf**: Base configuration (SUPER-W → CTRL-W)
 - **desktop.conf**: Desktop-specific configuration (same as default)
-- **laptop.conf**: Laptop-specific configuration (SUPER-W → CTRL-W + F12 → 7 fix for MacBook Pro)
+- **macbookpro-2014.conf**: MacBook Pro 2014-specific configuration (SUPER-W → CTRL-W + F12 → 7 fix)
 
 ## Installation
 
@@ -18,7 +18,7 @@ Manual installation:
 sudo pacman -S keyd
 
 # Copy appropriate config
-sudo cp desktop.conf /etc/keyd/default.conf  # or laptop.conf
+sudo cp desktop.conf /etc/keyd/default.conf  # or macbookpro-2014.conf
 
 # Enable and start service
 sudo systemctl enable keyd

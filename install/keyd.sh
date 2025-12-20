@@ -9,12 +9,12 @@ fi
 # Determine template directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_DIR="$SCRIPT_DIR/../templates/keyd"
-LAPTOP_TEMPLATE="$TEMPLATE_DIR/laptop.conf"
+MACBOOKPRO_2014_TEMPLATE="$TEMPLATE_DIR/macbookpro-2014.conf"
 DESKTOP_TEMPLATE="$TEMPLATE_DIR/desktop.conf"
 
 # Use machine-specific template if available, otherwise use default
-if [[ "$MACHINE_TYPE" == "laptop" ]] && [[ -f "$LAPTOP_TEMPLATE" ]]; then
-    TEMPLATE="$LAPTOP_TEMPLATE"
+if [[ "$MACHINE_TYPE" == "laptop" ]] && [[ -f "$MACBOOKPRO_2014_TEMPLATE" ]]; then
+    TEMPLATE="$MACBOOKPRO_2014_TEMPLATE"
 elif [[ "$MACHINE_TYPE" == "desktop" ]] && [[ -f "$DESKTOP_TEMPLATE" ]]; then
     TEMPLATE="$DESKTOP_TEMPLATE"
 else
