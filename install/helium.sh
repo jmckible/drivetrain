@@ -54,7 +54,7 @@ if [ -f "$DROPBOX_BOOKMARKS" ]; then
     echo -e "${BLUE}▸${RESET} Importing bookmarks from Dropbox..."
     cp "$DROPBOX_BOOKMARKS" "$HELIUM_BOOKMARKS"
 
-    BOOKMARK_COUNT=$(grep -o '"type":"url"' "$HELIUM_BOOKMARKS" 2>/dev/null | wc -l)
+    BOOKMARK_COUNT=$(grep -o '"type": "url"' "$HELIUM_BOOKMARKS" 2>/dev/null | wc -l)
     echo -e "${GREEN}✓${RESET} Imported $BOOKMARK_COUNT bookmarks from Dropbox"
 else
     echo -e "${BLUE}ℹ${RESET} No bookmarks found in Dropbox (run scripts/helium-export.sh to create them)"
