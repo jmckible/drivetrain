@@ -4,6 +4,7 @@ stow/hypr/.config/hypr/input.conf
 stow/hypr/.config/hypr/looknfeel.conf
 stow/hypr/.config/hypr/envs.conf
 stow/hypr/.config/hypr/bindings.conf
+stow/ghostty/.config/ghostty/hardware.conf
 
 # Plugin lockfile - each machine can update plugins independently
 stow/nvim/.config/nvim/lazy-lock.json
