@@ -108,6 +108,11 @@ if [[ $MACHINE_TYPE == "desktop" || $MACHINE_TYPE == "laptop" ]]; then
     if [[ -f "$TEMPLATE_DIR/helium/helium-browser-flags.conf" ]]; then
         cp "$TEMPLATE_DIR/helium/helium-browser-flags.conf" ~/.config/helium-browser-flags.conf
     fi
+
+    # Copy waybar style if present
+    if [[ -f "$TEMPLATE_DIR/waybar/style.css" ]]; then
+        cp "$TEMPLATE_DIR/waybar/style.css" ~/.config/waybar/style.css
+    fi
 else
     echo "Invalid machine type. Please manually edit configs in ~/.config/hypr/"
 fi
