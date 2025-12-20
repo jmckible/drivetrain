@@ -102,7 +102,7 @@ if [[ $MACHINE_TYPE == "desktop" || $MACHINE_TYPE == "laptop" ]]; then
 
     # Copy ghostty hardware-specific config
     mkdir -p ~/.config/ghostty
-    cp "$TEMPLATE_DIR/ghostty/config" ~/.config/ghostty/hardware.conf
+    cp "$TEMPLATE_DIR/ghostty/hardware.conf" ~/.config/ghostty/hardware.conf
 
     # Copy helium-browser flags if present
     if [[ -f "$TEMPLATE_DIR/helium/helium-browser-flags.conf" ]]; then
