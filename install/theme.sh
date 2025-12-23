@@ -25,5 +25,5 @@ cp -r "$REPO_THEME_DIR" "$THEME_DEST"
 # Always sync backgrounds to ensure they match the repo
 echo -e "${BLUE}▸${RESET} Syncing wallpapers..."
 mkdir -p "$BACKGROUNDS_DIR"
-cp "$REPO_BACKGROUNDS"/* "$BACKGROUNDS_DIR/"
+cp -r "$REPO_BACKGROUNDS"/* "$BACKGROUNDS_DIR/"
 echo -e "${GREEN}✓${RESET} Theme and wallpapers installed"
