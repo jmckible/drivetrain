@@ -96,6 +96,12 @@ alt - f : yabai -m window --toggle zoom-fullscreen
 # Rotate tree
 alt - r : yabai -m space --rotate 90
 
+# Mirror x-axis (flip left/right)
+shift + alt - x : yabai -m space --mirror x-axis
+
+# Mirror y-axis (flip top/bottom)
+shift + alt - y : yabai -m space --mirror y-axis
+
 # Balance windows
 alt - e : yabai -m space --balance
 
