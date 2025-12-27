@@ -9,10 +9,6 @@ source ~/.local/share/omarchy/default/bash/rc
 #
 # Make an alias for invoking commands you use constantly
 # alias p='python'
-
-# Use theme-specific starship config
-export STARSHIP_CONFIG="$HOME/.config/omarchy/current/theme/starship.toml"
-
 export FLYCTL_INSTALL="$HOME/.fly"
 export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
