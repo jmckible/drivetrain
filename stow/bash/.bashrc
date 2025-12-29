@@ -35,6 +35,13 @@ ga() {
   local path="../${base}--${branch}"
 
   git worktree add -b "$branch" "$path"
+  
+  # Copy development.key if it exists (Rails credential files)
+  if [[ -f "config/credentials/development.key" ]]; then
+    mkdir -p "$path/config/credentials"
+    cp "config/credentials/development.key" "$path/config/credentials/development.key"
+  fi
+  
   mise trust "$path"
   cd "$path"
 }
