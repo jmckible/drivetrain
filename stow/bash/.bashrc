@@ -22,49 +22,4 @@ export PATH="$HOME/.local/bin:$PATH"
 # opencode
 export PATH=/home/jmckible/.opencode/bin:$PATH
 
-
-# New worktree
-ga() {
-  if [[ -z $1 ]]; then
-    echo "Usage: ga [branch name]"
-    return 1
-  fi
-
-  local branch="$1"
-  local base="$(basename "$PWD")"
-  local path="../${base}--${branch}"
-
-  git worktree add -b "$branch" "$path"
-  
-  # Copy development.key if it exists (Rails credential files)
-  if [[ -f "config/credentials/development.key" ]]; then
-    mkdir -p "$path/config/credentials"
-    cp "config/credentials/development.key" "$path/config/credentials/development.key"
-  fi
-  
-  mise trust "$path"
-  cd "$path"
-}
-
-# Remove worktree
-gd() {
-  if gum confirm "Remove worktree and branch?"; then
-    local cwd base branch root
-
-    cwd="$(pwd)"
-    worktree="$(basename "$cwd")"
-
-    # split on first `--`
-    root="${worktree%%--*}"
-    branch="${worktree#*--}"
-
-    # Protect non-worktree
-    if [[ $root != $worktree ]]; then
-      cd "../$root"
-      git worktree remove "$worktree" --force
-      git branch -D "$branch"
-    fi
-  fi
-}
-
 alias c='opencode'
