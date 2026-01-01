@@ -6,20 +6,15 @@ return {
 		opts.scroll.enabled = false
 
 		-- Completely disable explorer - we use neo-tree
-		if opts.explorer then
-			opts.explorer = vim.tbl_deep_extend("force", opts.explorer, {
-				enabled = false,
-			})
-		else
-			opts.explorer = { enabled = false }
-		end
+		opts.explorer = { enabled = false }
 
 		return opts
 	end,
 	keys = {
-		-- Disable all explorer keymaps
+		-- Explicitly disable snacks explorer keymaps so neo-tree can use them
 		{ "<leader>e", false },
 		{ "<leader>E", false },
 		{ "<leader>fe", false },
+		{ "<leader>fE", false },
 	},
 }
