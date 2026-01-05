@@ -22,7 +22,7 @@ The script will:
 4. Install MesloLGS Nerd Font Mono and set as default
 5. Deploy your dotfiles via stow
 6. Configure Hyprland for your specific hardware
-7. Install applications (Firefox, KeePassXC, etc.)
+7. Install applications (Helium with Widevine DRM, KeePassXC, etc.)
 8. Install Claude Code CLI
 
 ## Architecture
@@ -58,6 +58,7 @@ drivetrain/
 │   ├── font.sh            # Pacman: ttf-meslo-nerd + omarchy-font-set
 │   ├── stow.sh            # Deploys configs + machine detection
 │   ├── keyd.sh            # Pacman: F12->7 mapping (laptop only)
+│   ├── helium.sh          # AUR: helium-browser-bin + Widevine DRM setup
 │   ├── firefox.sh         # Pacman: firefox + set as default
 │   ├── keepassxc.sh       # Pacman: keepassxc
 │   ├── omarchy-packages.sh # Omarchy: ruby, node, dropbox, steam
@@ -382,6 +383,46 @@ bindd = SUPER SHIFT, X, Description, exec, command-to-run
 
 ### Customize waybar
 Edit `stow/waybar/.config/waybar/config.jsonc` - your changes sync across machines.
+
+## Helium Browser
+
+### Widevine DRM Support
+
+Helium includes Widevine DRM support (installed automatically via `install/helium.sh`), which enables:
+- Netflix, Disney+, Hulu streaming
+- Spotify web player
+- Other DRM-protected content
+
+**Verify installation:**
+1. Open Helium
+2. Navigate to `chrome://components`
+3. Look for "Widevine Content Decryption Module"
+4. Test at: https://bitmovin.com/demos/drm
+
+**Re-run setup** (if needed):
+```bash
+cd ~/dev/drivetrain
+./install/helium.sh
+```
+
+See [HELIUM-WIDEVINE.md](HELIUM-WIDEVINE.md) for technical details and troubleshooting.
+
+### Bookmark Sync
+
+Helium uses local profiles on each machine (not synced via Dropbox). To sync bookmarks between machines:
+
+**Export bookmarks** (after making changes):
+```bash
+~/dev/drivetrain/scripts/helium-export.sh
+```
+
+This copies bookmarks to `~/Dropbox/helium-bookmarks.json`.
+
+**Import bookmarks** (on another machine):
+```bash
+cd ~/dev/drivetrain
+./install/helium.sh  # Automatically imports from Dropbox if available
+```
 
 ## Notes
 
