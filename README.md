@@ -58,8 +58,8 @@ drivetrain/
 │   ├── font.sh            # Pacman: ttf-meslo-nerd + omarchy-font-set
 │   ├── stow.sh            # Deploys configs + machine detection
 │   ├── keyd.sh            # Pacman: F12->7 mapping (laptop only)
-│   ├── helium.sh          # AUR: helium-browser-bin + Widevine DRM setup
-│   ├── firefox.sh         # Pacman: firefox + set as default
+│   ├── helium.sh          # AUR: helium-browser-bin + Widevine DRM setup (default browser)
+│   ├── firefox.sh         # LEGACY: Pacman: firefox + set as default (no longer used)
 │   ├── keepassxc.sh       # Pacman: keepassxc
 │   ├── omarchy-packages.sh # Omarchy: ruby, node, dropbox, steam
 │   └── claude-code.sh     # NPM: @anthropic-ai/claude-code
@@ -372,7 +372,7 @@ ip addr  # Get your IP for remote connection
 ### Change browser
 Edit `stow/hypr/.config/hypr/bindings-custom.conf`:
 ```bash
-$browser = uwsm app -- firefox  # Change to your preferred browser
+$browser = uwsm app -- helium-browser  # Change to your preferred browser
 ```
 
 ### Add custom keybinding
