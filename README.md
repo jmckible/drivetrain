@@ -18,7 +18,7 @@ cd ~/dev/drivetrain
 The script will:
 1. Auto-detect your machine type (Desktop/Laptop) or use provided argument
 2. Install SSH for remote access
-3. Install and configure the One Dark Pro theme
+3. Install and configure the Drivetrain theme
 4. Install MesloLGS Nerd Font Mono and set as default
 5. Deploy your dotfiles via stow
 6. Configure Hyprland for your specific hardware
@@ -54,7 +54,7 @@ drivetrain/
 ├── install.sh              # Main install script (accepts desktop/laptop param)
 ├── install/                # Individual install scripts
 │   ├── ssh.sh             # Pacman: openssh
-│   ├── theme.sh           # Install One Dark Pro theme from themes/
+│   ├── theme.sh           # Install Drivetrain theme from themes/
 │   ├── font.sh            # Pacman: ttf-meslo-nerd + omarchy-font-set
 │   ├── stow.sh            # Deploys configs + machine detection
 │   ├── keyd.sh            # Pacman: F12->7 mapping (laptop only)
@@ -64,7 +64,7 @@ drivetrain/
 │   ├── omarchy-packages.sh # Omarchy: ruby, node, dropbox, steam
 │   └── claude-code.sh     # NPM: @anthropic-ai/claude-code
 ├── themes/                 # Custom theme (installed locally)
-│   └── one-dark-pro/      # Complete One Dark Pro theme
+│   └── drivetrain/        # Complete Drivetrain theme
 │       ├── neovim.lua     # Neovim colorscheme (fixed for hot reload)
 │       ├── ghostty.conf   # Ghostty terminal theme
 │       ├── kitty.conf     # Kitty terminal theme
@@ -157,11 +157,11 @@ This approach keeps machine-specific configs identifiable while maintaining gene
 
 ## Theme Management
 
-This repo includes a customized **One Dark Pro** theme that's managed locally instead of from the upstream GitHub repository. The theme is stored in `themes/one-dark-pro/` and includes fixes for proper Omarchy integration.
+This repo includes a custom **Drivetrain** theme that's managed locally. The theme is stored in `themes/drivetrain/` and includes fixes for proper Omarchy integration.
 
 ### Why Local Theme?
 
-The official One Dark Pro theme from GitHub was missing several files and had configuration issues that prevented proper integration with Omarchy:
+The theme is based on One Dark Pro colors, with fixes for Omarchy integration:
 - **Missing `preview.png`** - Theme picker had no preview image
 - **Missing terminal configs** - No `ghostty.conf`, `kitty.conf`, or `vscode.json`
 - **Broken hot reload** - Neovim config didn't follow Omarchy's pattern, causing hot reloads to fail
@@ -171,7 +171,7 @@ The official One Dark Pro theme from GitHub was missing several files and had co
 The local theme includes all required Omarchy theme files:
 
 ```
-themes/one-dark-pro/
+themes/drivetrain/
 ├── neovim.lua          # Fixed for hot reload support
 ├── preview.png         # Theme picker preview (required)
 ├── ghostty.conf        # Ghostty terminal (Omarchy 3.2.0 default)
@@ -195,8 +195,8 @@ themes/one-dark-pro/
 
 When you run `./install.sh` or `./install/theme.sh`:
 
-1. **Copy theme to Omarchy**: `themes/one-dark-pro/` → `~/.config/omarchy/themes/one-dark-pro/`
-2. **Set as current**: Runs `omarchy-theme-set one-dark-pro`
+1. **Copy theme to Omarchy**: `themes/drivetrain/` → `~/.config/omarchy/themes/drivetrain/`
+2. **Set as current**: Runs `omarchy-theme-set drivetrain`
 3. **Symlink to active theme**: Omarchy creates `~/.config/omarchy/current/theme/` → theme files
 4. **Neovim picks it up**: `stow/nvim/.config/nvim/lua/plugins/theme.lua` symlinks to the theme's `neovim.lua`
 
@@ -204,7 +204,7 @@ When you run `./install.sh` or `./install/theme.sh`:
 
 **To change theme colors or styling:**
 
-1. Edit files in `themes/one-dark-pro/`
+1. Edit files in `themes/drivetrain/`
 2. Reinstall the theme:
    ```bash
    ./install/theme.sh
@@ -218,7 +218,7 @@ When you run `./install.sh` or `./install/theme.sh`:
 
 **To add custom wallpapers:**
 
-1. Add images to `themes/one-dark-pro/backgrounds/`
+1. Add images to `themes/drivetrain/backgrounds/`
 2. Reinstall theme: `./install/theme.sh`
 3. Select new wallpaper via `Super + W` or wallpaper picker
 
@@ -231,7 +231,7 @@ If you want to pull updates:
 cd /tmp
 git clone https://github.com/sc0ttman/omarchy-one-dark-pro-theme
 cd omarchy-one-dark-pro-theme
-# Manually copy desired files to ~/dev/drivetrain/themes/one-dark-pro/
+# Manually copy desired files to ~/dev/drivetrain/themes/drivetrain/
 # DO NOT overwrite neovim.lua, ghostty.conf, kitty.conf, vscode.json, or preview.png
 # These have been fixed/added locally
 ```
@@ -427,6 +427,6 @@ cd ~/dev/drivetrain
 ## Notes
 
 - **Omarchy updates**: May replace `bindings.conf`, check backups in `~/.config/hypr/bindings.conf.bak.*`
-- **Theme**: Managed locally in `themes/one-dark-pro/` - see [Theme Management](#theme-management) section
+- **Theme**: Managed locally in `themes/drivetrain/` - see [Theme Management](#theme-management) section
 - **Lazy-lock.json**: Included in stow for reproducible Neovim plugin versions
 - **SSH**: Installed first as a "backdoor" in case something breaks during setup

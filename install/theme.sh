@@ -1,16 +1,16 @@
 #!/bin/bash
 
 SCRIPT_DIR="$(dirname "$0")"
-REPO_THEME_DIR="$SCRIPT_DIR/../themes/one-dark-pro"
+REPO_THEME_DIR="$SCRIPT_DIR/../themes/drivetrain"
 REPO_BACKGROUNDS="$REPO_THEME_DIR/backgrounds"
 OMARCHY_THEMES_DIR="$HOME/.config/omarchy/themes"
-THEME_DEST="$OMARCHY_THEMES_DIR/one-dark-pro"
+THEME_DEST="$OMARCHY_THEMES_DIR/drivetrain"
 # Omarchy 3.3.0+ uses ~/.config/omarchy/backgrounds for user backgrounds
 OMARCHY_BACKGROUNDS_DIR="$HOME/.config/omarchy/backgrounds"
 # Legacy location (still used by some Omarchy versions)
 LEGACY_BACKGROUNDS_DIR="$HOME/Wallpapers"
 
-echo -e "${BLUE}▸${RESET} Installing One Dark Pro theme..."
+echo -e "${BLUE}▸${RESET} Installing Drivetrain theme..."
 
 # Create themes directory if it doesn't exist
 mkdir -p "$OMARCHY_THEMES_DIR"
