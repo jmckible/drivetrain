@@ -21,13 +21,17 @@ if [ -n "$discord_window" ]; then
     fi
 else
     # Terminal is placeholder - replace with Discord
-    current=$(hyprctl activewindow -j | jq -r '.address')
+    current=$(hyprctl activewindow -j)
+    current_addr=$(echo "$current" | jq -r '.address')
+    current_class=$(echo "$current" | jq -r '.class')
 
     # Launch Discord PWA
     omarchy-launch-webapp "https://discord.com/channels/@me"
     sleep 0.8  # PWAs can take a moment to open
 
-    # Close the placeholder terminal
-    hyprctl dispatch focuswindow address:$current
-    hyprctl dispatch killactive
+    # Only close if current window is a terminal
+    if [[ "$current_class" =~ ^(Alacritty|kitty|ghostty)$ ]]; then
+        hyprctl dispatch focuswindow address:$current_addr
+        hyprctl dispatch killactive
+    fi
 fi
