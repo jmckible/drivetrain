@@ -24,14 +24,17 @@ else
     current=$(hyprctl activewindow -j)
     current_addr=$(echo "$current" | jq -r '.address')
     current_class=$(echo "$current" | jq -r '.class')
+    current_title=$(echo "$current" | jq -r '.title')
 
     # Launch Discord PWA
     omarchy-launch-webapp "https://discord.com/channels/@me"
     sleep 0.8  # PWAs can take a moment to open
 
-    # Only close if current window is a terminal
-    if [[ "$current_class" =~ ^(Alacritty|kitty|ghostty)$ ]]; then
-        hyprctl dispatch focuswindow address:$current_addr
-        hyprctl dispatch killactive
+    # Only close if current window was an idle terminal
+    if [[ "${current_class,,}" =~ (alacritty|kitty|ghostty) ]]; then
+        # Skip if terminal is running an interactive program
+        if [[ ! "${current_title,,}" =~ (n?vim|nano|emacs|ssh|htop|top|less|man|tmux|claude) ]]; then
+            hyprctl dispatch closewindow address:$current_addr
+        fi
     fi
 fi
