@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# Show current weather status and which config variable is being used
+# Useful for debugging weather-based wallpaper selection
+
+CONFIG_FILE="$HOME/.config/omarchy/current/theme/backgrounds.conf"
+
+# Default location (Petaluma, CA) - overridden by config
+LATITUDE="38.23N"
+LONGITUDE="122.64W"
+
+# Load config if it exists
+if [[ -f "$CONFIG_FILE" ]]; then
+    source "$CONFIG_FILE"
+fi
+
+# Weather detection function (same as in omarchy-theme-bg-auto)
+get_weather_condition() {
+    local cache_file="/tmp/omarchy-weather-cache"
+    local cache_age=1800  # 30 minutes
+
+    # Check cache freshness
+    if [[ -f "$cache_file" ]] && [[ $(($(date +%s) - $(stat -c %Y "$cache_file"))) -lt $cache_age ]]; then
+        cat "$cache_file"
+        return 0
+    fi
+
+    # Fetch weather (5 second timeout)
+    local condition=$(curl -s -m 5 "wttr.in/${CITY:-Petaluma}?format=%C" 2>/dev/null)
+
+    if [[ -z "$condition" ]]; then
+        echo "default"
+        return 1
+    fi
+
+    # Normalize to clear vs cloudy
+    case "${condition,,}" in  # lowercase
+        *clear*|*sunny*)  echo "clear" ;;
+        *)                echo "cloudy" ;;
+    esac | tee "$cache_file"
+}
+
+# Determine time period (same logic as main script)
+determine_period() {
+    NOW_MINUTES=$(date +%H%M | awk '{h=int($1/100); m=$1%100; print h*60+m}')
+
+    if ! command -v sunwait &> /dev/null; then
+        echo "UNKNOWN"
+        return 1
+    fi
+
+    SUNRISE_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $1}')
+    SUNSET_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $2}')
+
+    SUNRISE_MINUTES=$(echo "$SUNRISE_TIME" | awk -F: '{print $1*60 + $2}')
+    SUNSET_MINUTES=$(echo "$SUNSET_TIME" | awk -F: '{print $1*60 + $2}')
+
+    NOON_MINUTES=$((12 * 60))
+    DUSK_START=$((SUNSET_MINUTES - 60))
+    DUSK_END=$((SUNSET_MINUTES + 30))
+
+    if [[ $NOW_MINUTES -ge $SUNRISE_MINUTES && $NOW_MINUTES -lt $NOON_MINUTES ]]; then
+        echo "MORNING"
+    elif [[ $NOW_MINUTES -ge $NOON_MINUTES && $NOW_MINUTES -lt $DUSK_START ]]; then
+        echo "AFTERNOON"
+    elif [[ $NOW_MINUTES -ge $DUSK_START && $NOW_MINUTES -lt $DUSK_END ]]; then
+        echo "DUSK"
+    else
+        echo "NIGHT"
+    fi
+}
+
+WEATHER=$(get_weather_condition)
+PERIOD=$(determine_period)
+
+echo "Current conditions:"
+echo "  Time period: $PERIOD"
+echo "  Weather: $WEATHER"
+echo ""
+
+if [[ "$PERIOD" == "DUSK" ]] || [[ "$PERIOD" == "NIGHT" ]]; then
+    echo "Using: $PERIOD (time-only, no weather check)"
+    PERIOD_VAR="${PERIOD}"
+    if [[ -n "${!PERIOD_VAR}" ]]; then
+        echo "  → Config variable defined with wallpapers"
+    else
+        echo "  → Config variable not defined (will use all wallpapers)"
+    fi
+else
+    if [[ -n "$WEATHER" ]] && [[ "$WEATHER" != "default" ]]; then
+        WEATHER_VAR="${WEATHER^^}"
+        if [[ -n "${!WEATHER_VAR}" ]]; then
+            echo "Using: $WEATHER_VAR (weather-based)"
+            echo "  → Config variable defined with wallpapers"
+        else
+            echo "Using: $PERIOD (fallback, no weather variants defined)"
+            PERIOD_VAR="${PERIOD}"
+            if [[ -n "${!PERIOD_VAR}" ]]; then
+                echo "  → Config variable defined with wallpapers"
+            else
+                echo "  → Config variable not defined (will use all wallpapers)"
+            fi
+        fi
+    else
+        echo "Using: $PERIOD (fallback, weather unavailable)"
+        PERIOD_VAR="${PERIOD}"
+        if [[ -n "${!PERIOD_VAR}" ]]; then
+            echo "  → Config variable defined with wallpapers"
+        else
+            echo "  → Config variable not defined (will use all wallpapers)"
+        fi
+    fi
+fi
+
+# Show cache info
+if [[ -f "/tmp/omarchy-weather-cache" ]]; then
+    cache_age=$(($(date +%s) - $(stat -c %Y "/tmp/omarchy-weather-cache")))
+    echo ""
+    echo "Weather cache age: ${cache_age}s (expires at 1800s / 30 min)"
+fi
