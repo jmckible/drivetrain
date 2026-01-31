@@ -5,7 +5,7 @@
   "spacing": 0,
   "height": 26,
   "modules-left": ["custom/omarchy", "hyprland/workspaces"],
-  "modules-center": ["clock", "custom/update", "custom/voxtype", "custom/screenrecording-indicator"],
+  "modules-center": ["custom/clock", "custom/update", "custom/voxtype", "custom/screenrecording-indicator"],
   "modules-right": [
     "group/tray-expander",
     "bluetooth",
@@ -59,9 +59,17 @@
     "format": "󰍛",
     "on-click": "omarchy-launch-or-focus-tui btop"
   },
-  "clock": {
-    "format": "{:L%A %B %d %I:%M %p}",
-    "format-alt": "{:L%d %B W%V %Y}",
+  // TEMPORARY WORKAROUND: Using custom clock script instead of built-in clock module
+  // because waybar v0.14.0 doesn't support removing leading zeros from hours.
+  // The built-in clock always shows "09:29 AM" but we want "9:29 AM".
+  // See: https://github.com/Alexays/Waybar/issues/4416
+  //      https://github.com/fmtlib/fmt/pull/4649
+  // TODO: Check back periodically and revert to built-in clock when fixed:
+  //       Change "custom/clock" back to "clock" in modules-center
+  //       Replace this section with standard clock module using format: "{:L%A %B %d %-I:%M %p}"
+  "custom/clock": {
+    "exec": "~/.config/waybar/scripts/clock.sh",
+    "interval": 1,
     "tooltip": false,
     "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select"
   },
