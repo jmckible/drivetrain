@@ -17,6 +17,76 @@ function home() {
     cd ~ && clear
 }
 alias h='home'
+
+# Navigate to ~/dev directories with smart matching
+function dev-dir() {
+    local dev_dir="$HOME/dev"
+
+    # No argument: cd to ~/dev
+    if [[ -z "$1" ]]; then
+        cd "$dev_dir"
+        return 0
+    fi
+
+    # Find matching directories (prefix match)
+    local matches=()
+    while IFS= read -r dir; do
+        matches+=("$dir")
+    done < <(find "$dev_dir" -maxdepth 1 -type d -name "$1*" -printf "%f\n" 2>/dev/null | sort)
+
+    case ${#matches[@]} in
+        0)
+            echo "No directory matching '$1' found in ~/dev" >&2
+            return 1
+            ;;
+        1)
+            # Single match: switch immediately
+            cd "$dev_dir/${matches[0]}"
+            ;;
+        *)
+            # Multiple matches: use zoxide score to pick best
+            local best_dir=""
+            local best_score=0
+
+            for dir in "${matches[@]}"; do
+                local full_path="$dev_dir/$dir"
+                local score=$(zoxide query --score "$full_path" 2>/dev/null | awk '{print $1}')
+
+                # Default to 0 if no score exists
+                score=${score:-0}
+
+                # Compare scores using awk (more portable than bc)
+                if awk "BEGIN {exit !($score > $best_score)}"; then
+                    best_score=$score
+                    best_dir=$dir
+                fi
+            done
+
+            # If no zoxide scores exist, pick first alphabetically
+            if [[ -z "$best_dir" ]]; then
+                best_dir="${matches[0]}"
+            fi
+
+            cd "$dev_dir/$best_dir"
+            ;;
+    esac
+}
+
+# Bash completion for dev-dir
+_dev_dir_completion() {
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local dev_dir="$HOME/dev"
+
+    if [[ -d "$dev_dir" ]]; then
+        COMPREPLY=( $(compgen -W "$(find "$dev_dir" -maxdepth 1 -type d -printf "%f\n" 2>/dev/null | grep -v '^dev$')" -- "$cur") )
+    fi
+}
+
+complete -F _dev_dir_completion dev-dir
+
+# Alias for quick access
+alias d='dev-dir'
+
 export PATH="$HOME/.local/bin:$PATH"
 
 # opencode
