@@ -81,7 +81,7 @@ Copied during install based on detected/specified machine type:
 
 ### themes/ - Local Theme Storage
 
-Location: `themes/one-dark-pro/`
+Location: `themes/drivetrain/`
 Usage: Customized theme with Omarchy compatibility fixes
 DO NOT pull from upstream - local version has critical fixes for hot reload
 Reference: README.md "Theme Management" section
@@ -129,7 +129,7 @@ fi
 
 ### Lua (Neovim - LazyVim)
 
-Reference: `stow/nvim/.config/nvim/lua/plugins/lspconfig.lua`, `themes/one-dark-pro/neovim.lua`
+Reference: `stow/nvim/.config/nvim/lua/plugins/lspconfig.lua`, `themes/drivetrain/neovim.lua`
 
 **Hot reload pattern (REQUIRED for theme switching):**
 ```lua
@@ -232,16 +232,40 @@ stow/app/.config/app/some.conf
 ### Modify Theme
 
 ```bash
-# 1. Edit files in themes/one-dark-pro/
-vim themes/one-dark-pro/waybar.css
+# 1. Edit files in themes/drivetrain/
+vim themes/drivetrain/waybar.css
 
 # 2. Reinstall theme
 ./install/theme.sh
 
-# 3. Reload affected services
+# 3. Activate changes
+omarchy-theme-set drivetrain
+
+# 4. Reload affected services
 omarchy-restart-waybar
 hyprctl reload
 # Neovim hot-reloads automatically
+```
+
+### Add Wallpapers
+
+```bash
+# 1. Copy images to backgrounds directory
+cp ~/Downloads/new-wallpaper.jpg themes/drivetrain/backgrounds/
+
+# 2. Edit backgrounds.conf to assign to time/weather categories
+vim themes/drivetrain/backgrounds.conf
+# Add filename to appropriate sections:
+# - CLEAR/CLOUDY: Weather-based (morning/afternoon when weather available)
+# - MORNING/AFTERNOON/DUSK/NIGHT: Time-based fallbacks
+# Images can appear in multiple categories
+
+# 3. Reinstall theme and activate
+./install/theme.sh
+omarchy-theme-set drivetrain
+
+# 4. Test wallpaper cycling
+# Super + Ctrl + Space cycles within current period
 ```
 
 ### Add New Machine
@@ -286,7 +310,7 @@ fi
 3. **Use `config = function()` in Neovim plugins**
    - Breaks hot reload
    - Use `opts = {}` instead
-   - Reference: `themes/one-dark-pro/neovim.lua` for correct pattern
+   - Reference: `themes/drivetrain/neovim.lua` for correct pattern
 
 4. **Skip idempotency checks in install scripts**
    - Always check if package/config already exists
@@ -335,14 +359,14 @@ source = ~/.config/hypr/bindings-custom.conf
 ### Respect Omarchy Commands
 
 Use Omarchy's tools, don't reinvent:
-- `omarchy-theme-set one-dark-pro` - Set theme
+- `omarchy-theme-set drivetrain` - Set theme
 - `omarchy-restart-waybar` - Reload waybar
 - `omarchy-font-set` - Change font
 - `omarchy-refresh-config` - Pull Omarchy updates
 
 ### Theme Integration Requirements
 
-Themes must include all Omarchy-required files (reference: `themes/one-dark-pro/`):
+Themes must include all Omarchy-required files (reference: `themes/drivetrain/`):
 - `preview.png` - Theme picker preview
 - `neovim.lua` - Must use `opts` pattern for hot reload
 - `ghostty.conf`, `kitty.conf` - Terminal themes
@@ -362,6 +386,6 @@ If Omarchy provides functionality:
 - **Machine detection logic**: `install/stow.sh:52-82`
 - **Package install pattern**: `install/helium.sh`
 - **Neovim plugin patterns**: `stow/nvim/.config/nvim/lua/plugins/`
-- **Theme hot reload fix**: `themes/one-dark-pro/neovim.lua`
+- **Theme hot reload fix**: `themes/drivetrain/neovim.lua`
 - **Architecture details**: `README.md`
 - **macOS setup**: `README-MACOS.md`

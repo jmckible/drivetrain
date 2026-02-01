@@ -219,8 +219,13 @@ When you run `./install.sh` or `./install/theme.sh`:
 **To add custom wallpapers:**
 
 1. Add images to `themes/drivetrain/backgrounds/`
-2. Reinstall theme: `./install/theme.sh`
-3. Select new wallpaper via `Super + W` or wallpaper picker
+2. Edit `themes/drivetrain/backgrounds.conf` to assign wallpapers to time periods and weather:
+   - `CLEAR` / `CLOUDY` - Weather-based (used during MORNING/AFTERNOON when weather available)
+   - `MORNING` / `AFTERNOON` / `DUSK` / `NIGHT` - Time-based fallbacks
+   - Images can appear in multiple categories
+3. Reinstall theme: `./install/theme.sh`
+4. Activate changes: `omarchy-theme-set drivetrain`
+5. Test with `Super + Ctrl + Space` to cycle wallpapers in current period
 
 **To update from upstream:**
 
