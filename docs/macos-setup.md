@@ -173,6 +173,8 @@ The install script creates `~/.config/ghostty/config` automatically. See the con
 
 ### Key Bindings Reference
 
+For a detailed comparison with Hyprland keybindings, see [keybindings.md](keybindings.md).
+
 **Note:** `alt` = Option key (⌥) on macOS
 
 **Window Navigation:**
@@ -290,6 +292,9 @@ Then reboot.
 
 ### Uninstall
 
+See [macos-uninstall.md](macos-uninstall.md) for complete removal instructions.
+
+Quick removal:
 ```bash
 yabai --stop-service
 skhd --stop-service

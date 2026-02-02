@@ -388,4 +388,4 @@ If Omarchy provides functionality:
 - **Neovim plugin patterns**: `stow/nvim/.config/nvim/lua/plugins/`
 - **Theme hot reload fix**: `themes/drivetrain/neovim.lua`
 - **Architecture details**: `README.md`
-- **macOS setup**: `README-MACOS.md`
+- **macOS setup**: `docs/macos-setup.md`
