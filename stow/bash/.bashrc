@@ -92,7 +92,7 @@ export PATH="$HOME/.local/bin:$PATH"
 # opencode
 export PATH=/home/jmckible/.opencode/bin:$PATH
 
-# alias c='opencode'
+alias c='claude'
 
 # Auto-load vocal worktree functions when in vocal repo
 if [[ -f "bin/worktree-functions.sh" ]]; then
