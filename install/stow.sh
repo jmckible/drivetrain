@@ -23,6 +23,10 @@ stow -d "$STOW_DIR" -t ~ git
 stow -d "$STOW_DIR" -t ~ bash
 stow -d "$STOW_DIR" -t ~ systemd
 
+# Claude Code config (remove specific files, not whole directory)
+rm -f ~/.claude/CLAUDE.md ~/.claude/settings.json ~/.claude/statusline-command.sh
+stow -d "$STOW_DIR" -t ~ claude
+
 # Restart waybar to pick up new config
 if command -v omarchy-restart-waybar &> /dev/null; then
     omarchy-restart-waybar
