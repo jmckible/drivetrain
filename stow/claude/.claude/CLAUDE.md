@@ -1,39 +1,15 @@
-# Personal Development Preferences
+# Global Preferences
 
-## Planning Documents
+Assume an advanced developer. Skip explanations of basics.
 
-For small advanced development teams, omit performative bureaucracy:
+## Planning & Documentation
 
-**Omit:**
-- Time estimates (weeks/days are meaningless measures)
-- File lists to create or modify
-- Testing checklists or example test scripts
-- Test strategies
-- Scalability and performance considerations
-- Rollout and rollback plans
-- Success metrics or business case analysis
-- Monitoring, observability, and error reporting sections
-- Phase breakdowns (unless things must be built on top of each other)
-- Migration examples (unless technically complex)
+Omit performative bureaucracy: time estimates, file lists, test checklists, test strategies, scalability sections, rollout/rollback plans, success metrics, monitoring sections, phase breakdowns (unless dependencies require sequencing), migration examples (unless technically complex).
 
-**Include:**
-- Core architecture and technical decisions
-- Implementation code patterns with examples
-- Critical gotchas with specific technical solutions
-- Build order (only if dependencies exist between components)
-- Migration approach (low/medium/high risk ordering with principles)
+Focus on: core architecture decisions, implementation patterns with code examples, critical gotchas with solutions, build order (only when dependencies exist).
 
-**Principles:**
-- Never implement things that will be thrown out later
-- Assume advanced developers who understand basics
-- Focus on what's technically interesting or tricky
-- Document the "why" and the gotchas, not the "how to write a test"
+Principle: never implement throwaway scaffolding. Document the "why" not the "how."
 
-## Code Style
+## Code Preferences
 
-Best Practices:
-- When using importmaps, vendor libraries instead of serving from a CDN
-
-## Common Patterns
-
-[Add patterns you frequently use across projects]
+- Vendor libraries locally when using importmaps (no CDN)
