@@ -83,6 +83,7 @@ _dev_dir_completion() {
 }
 
 complete -F _dev_dir_completion dev-dir
+complete -F _dev_dir_completion d
 
 # Alias for quick access
 alias d='dev-dir'
