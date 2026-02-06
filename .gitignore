@@ -8,3 +8,6 @@ stow/ghostty/.config/ghostty/hardware.conf
 
 # Plugin lockfile - each machine can update plugins independently
 stow/nvim/.config/nvim/lazy-lock.json
+
+# Auto-updated binaries that follow symlinks into stow
+stow/bin/.local/bin/claude

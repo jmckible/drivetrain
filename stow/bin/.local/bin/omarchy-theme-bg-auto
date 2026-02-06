@@ -27,6 +27,32 @@ if ! command -v sunwait &> /dev/null; then
     exit
 fi
 
+# Weather detection function (cached for 30 minutes)
+get_weather_condition() {
+    local cache_file="/tmp/omarchy-weather-cache"
+    local cache_age=1800  # 30 minutes
+
+    # Check cache freshness
+    if [[ -f "$cache_file" ]] && [[ $(($(date +%s) - $(stat -c %Y "$cache_file"))) -lt $cache_age ]]; then
+        cat "$cache_file"
+        return 0
+    fi
+
+    # Fetch weather (5 second timeout)
+    local condition=$(curl -s -m 5 "wttr.in/${CITY:-Petaluma}?format=%C" 2>/dev/null)
+
+    if [[ -z "$condition" ]]; then
+        echo "default"
+        return 1
+    fi
+
+    # Normalize to clear vs cloudy
+    case "${condition,,}" in  # lowercase
+        *clear*|*sunny*)  echo "clear" ;;
+        *)                echo "cloudy" ;;
+    esac | tee "$cache_file"
+}
+
 # Get today's sunrise and sunset
 SUNRISE_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $1}')
 SUNSET_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $2}')
@@ -52,8 +78,30 @@ else
 fi
 
 # Get wallpapers for this period from config
-PERIOD_VAR="${PERIOD}"
-PERIOD_WALLPAPERS="${!PERIOD_VAR}"
+# For DUSK and NIGHT: use time-only (skip weather)
+# For MORNING and AFTERNOON: try weather-based first, fall back to time-based
+PERIOD_WALLPAPERS=""
+
+if [[ "$PERIOD" == "DUSK" ]] || [[ "$PERIOD" == "NIGHT" ]]; then
+    # Time-only periods (no weather check)
+    PERIOD_VAR="${PERIOD}"
+    PERIOD_WALLPAPERS="${!PERIOD_VAR}"
+else
+    # MORNING or AFTERNOON: try weather-based first
+    WEATHER=$(get_weather_condition)
+
+    if [[ -n "$WEATHER" ]] && [[ "$WEATHER" != "default" ]]; then
+        # Weather available: try CLEAR or CLOUDY
+        WEATHER_VAR="${WEATHER^^}"  # CLEAR or CLOUDY
+        PERIOD_WALLPAPERS="${!WEATHER_VAR}"
+    fi
+
+    # Fall back to time-based (MORNING or AFTERNOON) if no weather variants
+    if [[ -z "$PERIOD_WALLPAPERS" ]]; then
+        PERIOD_VAR="${PERIOD}"
+        PERIOD_WALLPAPERS="${!PERIOD_VAR}"
+    fi
+fi
 
 # If no config or empty period, fall back to all wallpapers
 if [[ -z "$PERIOD_WALLPAPERS" ]]; then

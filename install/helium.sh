@@ -61,4 +61,27 @@ else
 fi
 
 echo -e "${BLUE}ℹ${RESET} Each machine uses a local profile (run scripts/helium-export.sh to sync bookmarks)"
+
+# Install and configure Widevine DRM for Netflix, Spotify, etc.
+echo -e "${BLUE}▸${RESET} Setting up Widevine DRM support..."
+
+# Check if Widevine is already installed system-wide
+if [[ ! -d /usr/lib/chromium/WidevineCdm ]]; then
+    echo -e "${BLUE}▸${RESET} Installing Widevine CDM from Mozilla source..."
+    
+    # Install Widevine using the community installer
+    if curl -fsSL https://raw.githubusercontent.com/cryptic-noodle/configs/main/helium/widevine-chromium-installer.sh | sudo bash; then
+        echo -e "${GREEN}✓${RESET} Widevine CDM installed to /usr/lib/chromium/WidevineCdm"
+    else
+        echo -e "${YELLOW}⚠${RESET} Widevine installation failed (DRM content may not work)"
+    fi
+else
+    echo -e "${GREEN}✓${RESET} Widevine already installed at /usr/lib/chromium/WidevineCdm"
+fi
+
+# Configure Helium to use the system-wide Widevine installation
+mkdir -p ~/.config/net.imput.helium/WidevineCdm
+echo -n '{"Path":"/usr/lib/chromium/WidevineCdm"}' > ~/.config/net.imput.helium/WidevineCdm/latest-component-updated-widevine-cdm
+echo -e "${GREEN}✓${RESET} Helium configured to use Widevine (enables Netflix, Spotify, etc.)"
+
 echo -e "${BLUE}ℹ${RESET} Note: Restart Hyprland for the default browser change to take effect"
