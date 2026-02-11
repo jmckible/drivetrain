@@ -54,8 +54,8 @@ if git rev-parse --git-dir > /dev/null 2>&1; then
   output+="${reset}"
 fi
 
-# Segment 3: Model name (only if NOT claude-opus-4-5) (blue background)
-if [ -n "$model_id" ] && [[ ! "$model_id" =~ claude-opus-4-5 ]]; then
+# Segment 3: Model name (only if NOT claude-opus-4-6) (blue background)
+if [ -n "$model_id" ] && [[ ! "$model_id" =~ claude-opus-4-6 ]]; then
   output+="${blue_bg}${white_fg}  ${model_name} ${reset}"
 fi
 
