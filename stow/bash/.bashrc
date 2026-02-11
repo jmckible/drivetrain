@@ -34,6 +34,22 @@ function dev-dir() {
         matches+=("$dir")
     done < <(find "$dev_dir" -maxdepth 1 -type d -name "$1*" -printf "%f\n" 2>/dev/null | sort)
 
+    # Fall back to subsequence match if no prefix matches
+    if [[ ${#matches[@]} -eq 0 ]]; then
+        # Build regex: "vv" -> "v.*v", "abc" -> "a.*b.*c"
+        local pattern=""
+        for (( i=0; i<${#1}; i++ )); do
+            [[ -n "$pattern" ]] && pattern+=".*"
+            pattern+="${1:$i:1}"
+        done
+
+        while IFS= read -r dir; do
+            if [[ "$dir" =~ $pattern ]]; then
+                matches+=("$dir")
+            fi
+        done < <(find "$dev_dir" -maxdepth 1 -type d -printf "%f\n" 2>/dev/null | sort)
+    fi
+
     case ${#matches[@]} in
         0)
             echo "No directory matching '$1' found in ~/dev" >&2
