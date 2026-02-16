@@ -3,8 +3,8 @@ services:
     image: ${OPENCLAW_IMAGE:-openclaw:local}
     user: root
     volumes:
-      - openclaw-workspace:/workspace
-    entrypoint: ["chown", "-R", "node:node", "/workspace"]
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+    entrypoint: ["chown", "-R", "node:node", "/home/node/.openclaw"]
 
   openclaw-gateway:
     image: ${OPENCLAW_IMAGE:-openclaw:local}
@@ -17,9 +17,11 @@ services:
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
-      - openclaw-workspace:/home/node/.openclaw/workspace
+      # Named volume removed — workspace now lives on host at ~/.openclaw/workspace/
+      # - openclaw-workspace:/home/node/.openclaw/workspace
     ports:
       - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
       - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
@@ -44,14 +46,18 @@ services:
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
       BROWSER: echo
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
-      - openclaw-workspace:/home/node/.openclaw/workspace
+      # Named volume removed — workspace now lives on host at ~/.openclaw/workspace/
+      # - openclaw-workspace:/home/node/.openclaw/workspace
     stdin_open: true
     tty: true
     init: true
     entrypoint: ["node", "dist/index.js"]
 
+# Named volume retained for now to avoid data loss — remove after migrating data
+# docker cp $(docker create --rm -v openclaw_openclaw-workspace:/data busybox):/data/. ~/.openclaw/workspace/
 volumes:
   openclaw-workspace:
