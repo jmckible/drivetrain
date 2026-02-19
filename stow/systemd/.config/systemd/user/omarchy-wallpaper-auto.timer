@@ -3,9 +3,8 @@ Description=Omarchy Automatic Wallpaper Rotation Timer
 After=graphical-session.target
 
 [Timer]
-# Run every 30 minutes
 OnBootSec=1min
-OnUnitActiveSec=30min
+OnCalendar=*:0/30
 Persistent=true
 
 [Install]
