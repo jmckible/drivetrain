@@ -71,6 +71,20 @@ Never use `config = function()` - breaks theme hot reload.
 - **Waybar**: `.jsonc`
 - **Alacritty/Ghostty/Starship**: `.toml`
 
+## Apple Music PWA Integration
+
+Album links on the Dashboard web app open in the local Apple Music PWA (chromium `--app` window) instead of a browser tab. The local machine runs an HTTP listener that the Dashboard server relays requests to via Tailscale Funnel.
+
+**Components:**
+- `stow/bin/.local/bin/apple-music-listener` — HTTP server on port 9111. Receives album URLs, triggers `apple-music-open`. Runs as a systemd user service.
+- `stow/bin/.local/bin/apple-music-open` — Closes existing PWA window via `hyprctl`, launches `chromium --app=<url>`.
+- `stow/bin/.local/share/applications/apple-music.desktop` — XDG handler for `music-pwa://` scheme (used internally between listener and opener).
+- `stow/systemd/.config/systemd/user/apple-music-listener.service` — Keeps the listener running.
+
+**Request flow:** Dashboard server → `https://dell.hummingbird-ostrich.ts.net/music/` (Tailscale Funnel) → `http://127.0.0.1:9111` (listener) → `apple-music-open` → chromium PWA.
+
+**Tailscale Funnel** must be configured: `tailscale funnel --bg --set-path /music 9111`. This exposes the listener publicly so the Dashboard server can reach it. The listener only accepts `music.apple.com` URLs.
+
 ## Critical Rules
 
 1. **Never modify `~/.local/share/omarchy/default/`** - overwritten on Omarchy updates. Layer overrides via source order instead.

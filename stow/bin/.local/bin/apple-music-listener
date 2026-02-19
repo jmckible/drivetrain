@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+"""Local HTTP listener for opening Apple Music URLs in the PWA.
+Listens on port 9111. Accessed directly from local dashboard or via
+Tailscale Funnel from the production HTTPS dashboard.
+Run as a background service via systemd user unit."""
+
+import subprocess
+import urllib.parse
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "*",
+}
+
+
+class Handler(BaseHTTPRequestHandler):
+    def _send_cors(self, code):
+        self.send_response(code)
+        for k, v in CORS_HEADERS.items():
+            self.send_header(k, v)
+        self.end_headers()
+
+    def do_GET(self):
+        params = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+        url = params.get("url", [""])[0]
+
+        if url.startswith("https://music.apple.com"):
+            pwa_url = "music-pwa://" + url.removeprefix("https://")
+            subprocess.Popen(["apple-music-open", pwa_url])
+            self._send_cors(204)
+        else:
+            self._send_cors(400)
+
+    def do_OPTIONS(self):
+        self._send_cors(204)
+
+    def log_message(self, *args):
+        pass
+
+
+server = HTTPServer(("127.0.0.1", 9111), Handler)
+server.serve_forever()

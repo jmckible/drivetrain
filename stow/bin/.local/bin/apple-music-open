@@ -4,9 +4,8 @@
 # Closes existing PWA window first to avoid duplicates.
 
 url="https://${1#music-pwa://}"
-pwa_class="chrome-music.apple.com__us_new-Default"
 
-# Close existing PWA window if present
+pwa_class="chrome-music.apple.com__us_new-Default"
 hyprctl dispatch closewindow "class:$pwa_class" &>/dev/null
 sleep 0.3
 

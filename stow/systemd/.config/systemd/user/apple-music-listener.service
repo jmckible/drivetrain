@@ -1,0 +1,12 @@
+[Unit]
+Description=Apple Music PWA listener
+After=graphical-session.target
+
+[Service]
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin
+ExecStart=%h/.local/bin/apple-music-listener
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target
