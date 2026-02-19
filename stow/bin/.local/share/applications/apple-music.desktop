@@ -4,4 +4,4 @@ Comment=Open Apple Music links in PWA
 Exec=apple-music-open %u
 Type=Application
 NoDisplay=true
-MimeType=x-scheme-handler/apple-music;
+MimeType=x-scheme-handler/music-pwa;
