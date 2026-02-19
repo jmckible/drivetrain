@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Force Helium to light mode regardless of theme
+# Helium reads /etc/chromium/policies which Omarchy sets for Chromium
+sudo rm -f /etc/chromium/policies/managed/color.json
+helium-browser --no-startup-window --set-color-scheme="light"
