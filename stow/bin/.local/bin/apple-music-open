@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Open Apple Music URLs in the PWA.
+# Closes existing PWA window first to avoid duplicates.
+
+url="https://${1#apple-music://}"
+pwa_class="chrome-music.apple.com__us_new-Default"
+
+# Close existing PWA window if present
+hyprctl dispatch closewindow "class:$pwa_class" &>/dev/null
+sleep 0.3
+
+exec chromium --app="$url"
