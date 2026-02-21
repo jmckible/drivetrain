@@ -65,6 +65,15 @@ return {
 
 Never use `config = function()` - breaks theme hot reload.
 
+### Omarchy Hooks
+
+Omarchy runs hooks from `~/.config/omarchy/hooks/` on events like `theme-set`, `font-set`, and `post-update`. Hook source files live in `hooks/` in this repo and get copied to `~/.config/omarchy/hooks/` during install.
+
+Hooks run without a TTY, so any `sudo` calls need passwordless sudoers rules (see `/etc/sudoers.d/helium-theme` for an example).
+
+Current hooks:
+- `theme-set` — Forces Helium to light mode by overwriting `/etc/chromium/policies/managed/color.json` after Omarchy sets it with a dark theme color.
+
 ### Config Formats
 
 - **Hyprland**: `.conf`, `key = value`
