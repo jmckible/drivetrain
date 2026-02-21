@@ -93,4 +93,15 @@ cp "$HOOK_SRC" "$HOOK_DIR/theme-set"
 chmod +x "$HOOK_DIR/theme-set"
 echo -e "${GREEN}✓${RESET} Installed theme-set hook for Helium light mode"
 
+# Allow theme-set hook to overwrite Chromium policy without password
+SUDOERS_FILE=/etc/sudoers.d/helium-theme
+SUDOERS_RULE="$USER ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/chromium/policies/managed/color.json"
+if [ ! -f "$SUDOERS_FILE" ]; then
+    echo "$SUDOERS_RULE" | sudo tee "$SUDOERS_FILE" &> /dev/null
+    sudo chmod 440 "$SUDOERS_FILE"
+    echo -e "${GREEN}✓${RESET} Added sudoers rule for theme hook"
+else
+    echo -e "${GREEN}✓${RESET} Sudoers rule already exists"
+fi
+
 echo -e "${BLUE}ℹ${RESET} Note: Restart Hyprland for the default browser change to take effect"
