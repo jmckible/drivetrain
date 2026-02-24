@@ -16,27 +16,31 @@ mcp_count=$(echo "$input" | jq -r '.mcp.servers | length // 0' 2>/dev/null)
 # Replace home directory with ~
 cwd="${cwd/#$HOME/\~}"
 
-# ANSI color codes using printf (Drivetrain palette)
-yellow_bg=$(printf '\033[48;2;210;155;64m')
-aqua_bg=$(printf '\033[48;2;104;157;106m')
-blue_bg=$(printf '\033[48;2;97;175;239m')
-bg3_bg=$(printf '\033[48;2;62;68;81m')
-bg1_bg=$(printf '\033[48;2;40;44;52m')
-white_fg=$(printf '\033[38;2;255;255;255m')
+# ANSI color codes using printf (Drivetrain palette — text only)
+yellow_fg=$(printf '\033[38;2;210;155;64m')
+aqua_fg=$(printf '\033[38;2;104;157;106m')
+blue_fg=$(printf '\033[38;2;97;175;239m')
+dim_fg=$(printf '\033[38;2;100;100;110m')
+red_fg=$(printf '\033[38;2;204;36;29m')
 green_fg=$(printf '\033[38;2;43;186;197m')
 reset=$(printf '\033[0m')
+
+# Separator
+sep=" ${dim_fg}│${reset} "
 
 # Build the status line (left side)
 output=""
 
-# Segment 1: Directory (yellow background)
-output+="${yellow_bg}${white_fg} ${cwd} ${reset}"
+# Segment 1: Directory
+folder_icon=$(printf '\uf07b')
+output+="${yellow_fg}${folder_icon} ${cwd}${reset}"
 
-# Segment 2: Git branch and status (aqua background)
+# Segment 2: Git branch and status
 if git rev-parse --git-dir > /dev/null 2>&1; then
   export GIT_OPTIONAL_LOCKS=0
   branch=$(git branch --show-current 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
-  output+="${aqua_bg}${white_fg}  ${branch} "
+  git_icon=$(printf '\ue0a0')
+  output+="${sep}${aqua_fg}${git_icon} ${branch}"
 
   # Git status indicators
   git_status=""
@@ -47,39 +51,37 @@ if git rev-parse --git-dir > /dev/null 2>&1; then
     git_status+=""
   fi
   if [ -n "$(git ls-files --others --exclude-standard 2>/dev/null)" ]; then
-    git_status+="? "
+    git_status+="?"
   fi
 
-  [ -n "$git_status" ] && output+="${git_status}"
+  [ -n "$git_status" ] && output+=" ${yellow_fg}${git_status}"
   output+="${reset}"
 fi
 
-# Segment 3: Model name (only if NOT claude-opus-4-6) (blue background)
+# Segment 3: Model name (only if NOT claude-opus-4-6)
 if [ -n "$model_id" ] && [[ ! "$model_id" =~ claude-opus-4-6 ]]; then
-  output+="${blue_bg}${white_fg}  ${model_name} ${reset}"
+  output+="${sep}${blue_fg} ${model_name}${reset}"
 fi
 
-# Segment 4: Agent name (when present) (bg3 background)
+# Segment 4: Agent name (when present)
 if [ -n "$agent_name" ]; then
-  output+="${bg3_bg}${white_fg}  ${agent_name} ${reset}"
+  output+="${sep}${blue_fg} ${agent_name}${reset}"
 fi
 
-# Segment 5: Context remaining (bg3 background)
+# Segment 5: Context remaining (hidden above 30%, color shifts as it depletes)
 if [ -n "$context_remaining" ]; then
-  output+="${bg3_bg}${white_fg}  ${context_remaining}% remaining ${reset}"
+  ctx=${context_remaining%.*}
+  if [ "$ctx" -le 10 ] 2>/dev/null; then
+    output+="${sep}${red_fg} ${ctx}%${reset}"
+  elif [ "$ctx" -le 30 ] 2>/dev/null; then
+    output+="${sep}${yellow_fg} ${ctx}%${reset}"
+  fi
 fi
 
-# Segment 6: MCP servers (bg3 background)
+# Segment 6: MCP servers
 if [ -n "$mcp_count" ] && [ "$mcp_count" -gt 0 ]; then
-  output+="${bg3_bg}${white_fg}  MCP: ${mcp_count} ${reset}"
+  output+="${sep}${dim_fg} MCP: ${mcp_count}${reset}"
 fi
-
-# Add fixed spacing before time
-output+="     "
-
-# Segment 7: Time (bg1 background)
-current_time=$(date +"%-I:%M %p")
-output+="${bg1_bg}${white_fg}   ${current_time} ${reset}"
 
 # Line break and character prompt
 output+=$'\n'
