@@ -9,4 +9,4 @@ pwa_class="chrome-music.apple.com__us_new-Default"
 hyprctl dispatch closewindow "class:$pwa_class" &>/dev/null
 sleep 0.3
 
-exec chromium --app="$url"
+exec /opt/helium-browser-bin/helium --user-data-dir="$HOME/.config/net.imput.helium" --profile-directory=Default --app="$url"
