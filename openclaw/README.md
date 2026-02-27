@@ -23,17 +23,15 @@ AI gateway running in Docker. Secrets managed via 1Password CLI (`op`).
 All commands use the `oc` alias (defined in `.bashrc`):
 
 ```bash
-oc up -d openclaw-gateway          # Start gateway
+oc up                               # Start gateway
 oc down                             # Stop gateway
 oc restart openclaw-gateway         # Restart
 oc logs -f openclaw-gateway         # Follow logs
 oc run --rm openclaw-cli dashboard --no-open  # Get dashboard URL + token
 ```
 
-The `oc` alias expands to:
-```bash
-cd ~/dev/drivetrain/openclaw && op run --env-file=.env.tpl -- docker compose
-```
+The `oc` script (`~/.local/bin/oc`) wraps `op run ... docker compose`.
+`oc up` defaults to `-d openclaw-gateway`; all other commands pass through.
 
 ## Access
 
@@ -55,7 +53,7 @@ A `docker compose down` + `up` cycle requires `op run` (the `oc` alias handles t
 cd ~/dev/openclaw
 git pull
 docker build -t openclaw:local .
-oc up -d openclaw-gateway           # Recreates with new image
+oc up           # Recreates with new image
 ```
 
 ## Config Changes
@@ -89,7 +87,7 @@ Currently disabled in config (`channels.discord.enabled: false`). The bot token 
 
 Gateway won't start after reboot:
 ```bash
-oc up -d openclaw-gateway
+oc up
 ```
 
 Control UI shows "disconnected":

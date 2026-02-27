@@ -4,6 +4,9 @@ After=graphical-session.target
 
 [Service]
 Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin
+Environment=WAYLAND_DISPLAY=wayland-1
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=DISPLAY=:1
 ExecStart=%h/.local/bin/apple-music-listener
 Restart=always
 RestartSec=3

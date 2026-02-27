@@ -1,0 +1,12 @@
+#!/bin/bash
+cd ~/dev/drivetrain/openclaw
+
+case "$1" in
+  up)
+    shift
+    op run --env-file=.env.tpl -- docker compose up -d openclaw-gateway "$@"
+    ;;
+  *)
+    op run --env-file=.env.tpl -- docker compose "$@"
+    ;;
+esac

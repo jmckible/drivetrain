@@ -9,3 +9,4 @@ OPENCLAW_GATEWAY_TOKEN=op://OpenClaw/Gateway/credential
 ANTHROPIC_API_KEY=op://OpenClaw/Claude/credential
 DISCORD_BOT_TOKEN=op://OpenClaw/Discord/credential
 GITHUB_TOKEN=op://OpenClaw/GitHub/credential
+GEMINI_API_KEY=op://OpenClaw/Gemini/credential

@@ -120,6 +120,5 @@ fi
 # Parallel test shortcuts
 alias pspec="PARALLEL_TEST_PROCESSORS=4 bundle exec rake parallel:spec"
 
-# OpenClaw
-alias oc='cd ~/dev/drivetrain/openclaw && op run --env-file=.env.tpl -- docker compose'
+# OpenClaw — see ~/.local/bin/oc
 
