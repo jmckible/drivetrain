@@ -6,6 +6,10 @@ case "$1" in
     shift
     op run --env-file=.env.tpl -- docker compose up -d openclaw-gateway "$@"
     ;;
+  update)
+    op run --env-file=.env.tpl -- docker compose pull openclaw-gateway
+    op run --env-file=.env.tpl -- docker compose up -d openclaw-gateway
+    ;;
   *)
     op run --env-file=.env.tpl -- docker compose "$@"
     ;;
