@@ -16,7 +16,7 @@ echo "Installing drivetrain dotfiles for macOS..."
 
 # Install required tools via homebrew
 echo "Installing required tools..."
-REQUIRED_TOOLS="stow fd ripgrep"
+REQUIRED_TOOLS="stow fd ripgrep tmux"
 for tool in $REQUIRED_TOOLS; do
     if ! command -v "$tool" &> /dev/null; then
         echo "Installing $tool..."
@@ -120,6 +120,23 @@ if $TILING; then
     stow -d "$STOW_DIR" -t ~ skhd
 fi
 
+# Set up tmux configuration
+echo "Setting up tmux configuration..."
+mkdir -p ~/.config/tmux
+cp "$STOW_DIR/tmux/.config/tmux/tmux.conf" ~/.config/tmux/tmux.conf
+cp "$STOW_DIR/tmux/.config/tmux/functions.bash" ~/.config/tmux/functions.bash
+
+# Source tmux functions from shell rc if not already
+TMUX_SOURCE='source ~/.config/tmux/functions.bash'
+for rc in ~/.bashrc ~/.zshrc; do
+    if [[ -f "$rc" ]] && ! grep -qF "$TMUX_SOURCE" "$rc"; then
+        echo "" >> "$rc"
+        echo "# Tmux layout functions (tdl, tdlm, tsl)" >> "$rc"
+        echo "$TMUX_SOURCE" >> "$rc"
+        echo "Added tmux functions source to $rc"
+    fi
+done
+
 # Set up macOS-specific Ghostty configuration
 echo "Setting up Ghostty configuration for macOS..."
 if [[ -e ~/.config/ghostty/config ]]; then
@@ -171,6 +188,7 @@ if $TILING; then
     echo "  - yabai (tiling window manager)"
     echo "  - skhd (hotkey daemon)"
 fi
+echo "  - tmux (with Omarchy keybindings)"
 echo "  - Ghostty terminal"
 echo ""
 if $TILING; then
