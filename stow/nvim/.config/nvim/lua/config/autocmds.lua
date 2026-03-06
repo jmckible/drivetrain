@@ -26,16 +26,12 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
--- Open neo-tree automatically when entering a directory (e.g. after project picker)
-vim.api.nvim_create_autocmd("VimEnter", {
+-- Open neo-tree automatically after persistence restores a session
+vim.api.nvim_create_autocmd("User", {
+  pattern = "PersistenceLoadPost",
   group = vim.api.nvim_create_augroup("open_neo_tree", { clear = true }),
   callback = function()
-    -- Only open if the argument is a directory or no args (restored session)
-    if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
-      vim.defer_fn(function()
-        require("neo-tree.command").execute({ action = "show", dir = LazyVim.root() })
-      end, 50)
-    end
+    require("neo-tree.command").execute({ action = "show", dir = LazyVim.root() })
   end,
 })
 
