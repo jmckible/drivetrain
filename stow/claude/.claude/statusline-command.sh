@@ -32,14 +32,14 @@ sep=" ${dim_fg}│${reset} "
 output=""
 
 # Segment 1: Directory
-folder_icon=$(printf '\uf07b')
+folder_icon=$(printf '\xef\x81\xbb')
 output+="${yellow_fg}${folder_icon} ${cwd}${reset}"
 
 # Segment 2: Git branch and status
 if git rev-parse --git-dir > /dev/null 2>&1; then
   export GIT_OPTIONAL_LOCKS=0
   branch=$(git branch --show-current 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
-  git_icon=$(printf '\ue0a0')
+  git_icon=$(printf '\xee\x82\xa0')
   output+="${sep}${aqua_fg}${git_icon} ${branch}"
 
   # Git status indicators
