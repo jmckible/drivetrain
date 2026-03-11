@@ -110,7 +110,29 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH=/home/jmckible/.opencode/bin:$PATH
 
 alias c='claude'
-alias cc='claude --dangerously-skip-permissions'
+alias cc='CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=true claude --dangerously-skip-permissions'
+
+# Tmux Claude layout: top split (cc left, shell right), terminal bottom
+tdc() {
+  [[ -z $TMUX ]] && { echo "You must start tmux to use tdc."; return 1; }
+
+  local current_dir="${PWD}"
+  local top_pane="$TMUX_PANE"
+
+  tmux rename-window -t "$top_pane" "$(basename "$current_dir")"
+
+  # Split bottom 15%
+  tmux split-window -v -p 15 -t "$top_pane" -c "$current_dir"
+
+  # Split top pane horizontally - right 50%
+  local right_pane=$(tmux split-window -h -p 50 -t "$top_pane" -c "$current_dir" -P -F '#{pane_id}')
+
+  # Run cc in the left (original) pane
+  tmux send-keys -t "$top_pane" "cc" C-m
+
+  # Focus the right pane
+  tmux select-pane -t "$right_pane"
+}
 
 # Auto-load vocal worktree functions when in vocal repo
 if [[ -f "bin/worktree-functions.sh" ]]; then
