@@ -6,7 +6,6 @@
       "Bash(npx eslint*)"
     ]
   },
-  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline-command.sh"
