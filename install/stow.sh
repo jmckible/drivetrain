@@ -11,13 +11,11 @@ rm -rf ~/.config/nvim
 rm -rf ~/.config/waybar
 rm -rf ~/.config/hypr
 rm -rf ~/.config/alacritty
-rm -rf ~/.config/ghostty
 rm -rf ~/.local/bin
 rm -rf ~/.config/git
 rm -f ~/.bashrc ~/.bash_profile ~/.bash_logout
 stow -d "$STOW_DIR" -t ~ nvim
 stow -d "$STOW_DIR" -t ~ waybar
-stow -d "$STOW_DIR" -t ~ ghostty
 stow -d "$STOW_DIR" -t ~ bin
 stow -d "$STOW_DIR" -t ~ git
 stow -d "$STOW_DIR" -t ~ bash
@@ -112,9 +110,9 @@ if [[ $MACHINE_TYPE == "desktop" || $MACHINE_TYPE == "laptop" ]]; then
     mkdir -p ~/.config/alacritty
     cp "$TEMPLATE_DIR/alacritty/alacritty.toml" ~/.config/alacritty/alacritty.toml
 
-    # Copy ghostty hardware-specific config
+    # Copy ghostty config (platform-specific, not stowed)
     mkdir -p ~/.config/ghostty
-    cp "$TEMPLATE_DIR/ghostty/hardware.conf" ~/.config/ghostty/hardware.conf
+    cp "$TEMPLATE_DIR/ghostty/config" ~/.config/ghostty/config
 
     # Copy helium-browser flags if present
     if [[ -f "$TEMPLATE_DIR/helium/helium-browser-flags.conf" ]]; then
