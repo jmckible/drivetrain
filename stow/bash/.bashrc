@@ -144,6 +144,3 @@ alias pspec="PARALLEL_TEST_PROCESSORS=4 bundle exec rake parallel:spec"
 
 # OpenClaw — see ~/.local/bin/oc
 
-
-# Tmux layout functions (tdl, tdlm, tsl)
-source ~/.config/tmux/functions.bash
