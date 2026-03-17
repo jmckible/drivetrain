@@ -130,8 +130,8 @@ tdc() {
   # Run cc in the left (original) pane
   tmux send-keys -t "$top_pane" "cc" C-m
 
-  # Focus the right pane
-  tmux select-pane -t "$right_pane"
+  # Focus the left pane
+  tmux select-pane -t "$top_pane"
 }
 
 # Auto-load vocal worktree functions when in vocal repo
