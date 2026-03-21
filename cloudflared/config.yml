@@ -1,0 +1,9 @@
+tunnel: dell
+credentials-file: /home/jmckible/.cloudflared/3b5096d3-3b68-49d9-b5d6-5b3ccd0432a4.json
+
+ingress:
+  - hostname: tumblepop.com
+    service: http://127.0.0.1:3300
+  - hostname: "*.tumblepop.com"
+    service: http://127.0.0.1:3300
+  - service: http_status:404

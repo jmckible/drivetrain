@@ -96,6 +96,8 @@ header "⌨️  Additional Components"
 ./install/slack.sh
 ./install/cpulimit.sh
 ./install/claude-code.sh
+./install/cloudflared.sh
+./install/backups.sh
 
 # Final summary
 echo -e "\n${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
