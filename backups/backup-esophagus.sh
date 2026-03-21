@@ -30,8 +30,7 @@ rclone sync "$HOME/backups/esophagus/" "$B2_DEST/" 2>/dev/null || echo "WARNING:
 # Prune local backups older than 7 days
 find "$HOME/backups/esophagus" -maxdepth 1 -type d -mtime +7 -exec rm -rf {} +
 
-# Prune NAS backups older than 6 months
-rclone delete --min-age 6M "$B2_DEST/" 2>/dev/null || echo "WARNING: B2 prune failed"
-ssh admin@nas "find /share/backups/esophagus -maxdepth 1 -type d -mtime +180 -exec rm -rf {} +" 2>/dev/null || echo "WARNING: NAS prune failed"
+# Prune B2 backups older than 30 days
+rclone delete --min-age 30d "$B2_DEST/" 2>/dev/null || echo "WARNING: B2 prune failed"
 
 echo "$(date): Esophagus backup complete → $BACKUP_DIR"

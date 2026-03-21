@@ -1,9 +1,8 @@
 [Unit]
-Description=Backup Tumblepop every 6 hours
+Description=Backup Tumblepop daily
 
 [Timer]
-OnBootSec=10min
-OnCalendar=*-*-* 00/6:00:00
+OnCalendar=*-*-* 06:00:00
 Persistent=true
 
 [Install]

@@ -1,0 +1,8 @@
+[Unit]
+Description=Backup Esophagus databases
+
+[Service]
+Type=oneshot
+ExecStart=%h/bin/backup-esophagus
+StandardOutput=append:%h/backups/esophagus.log
+StandardError=append:%h/backups/esophagus.log

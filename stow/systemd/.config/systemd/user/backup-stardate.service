@@ -1,0 +1,8 @@
+[Unit]
+Description=Backup Stardate databases
+
+[Service]
+Type=oneshot
+ExecStart=%h/bin/backup-stardate
+StandardOutput=append:%h/backups/stardate.log
+StandardError=append:%h/backups/stardate.log

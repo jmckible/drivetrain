@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Install backup dependencies and configure systemd timer
+# Install backup dependencies and configure systemd timers
 
 # rclone
 if ! command -v rclone &> /dev/null; then
@@ -13,10 +13,12 @@ fi
 # Backup directory
 mkdir -p "$HOME/backups" "$HOME/bin"
 
-# Deploy backup script
+# Deploy backup scripts
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cp "$DIR/backups/backup-tumblepop.sh" "$HOME/bin/backup-tumblepop"
-chmod +x "$HOME/bin/backup-tumblepop"
+for app in dashboard tumblepop stardate esophagus; do
+    cp "$DIR/backups/backup-${app}.sh" "$HOME/bin/backup-${app}"
+    chmod +x "$HOME/bin/backup-${app}"
+done
 
 # Check rclone B2 config
 if ! rclone listremotes 2>/dev/null | grep -q "^b2:"; then
@@ -29,15 +31,19 @@ fi
 if ! ping -c 1 -W 2 nas &>/dev/null; then
     echo -e "${YELLOW}⚠${RESET} NAS not reachable. Ensure it's on Tailscale as 'nas'"
 else
-    ssh admin@nas "mkdir -p /share/backups/tumblepop" 2>/dev/null || true
+    for app in dashboard tumblepop stardate esophagus; do
+        ssh admin@nas "mkdir -p /share/backups/${app}" 2>/dev/null || true
+    done
 fi
 
-# Enable systemd timer (stow handles the unit files)
+# Enable systemd timers (stow handles the unit files)
 systemctl --user daemon-reload
-systemctl --user enable backup-tumblepop.timer
-systemctl --user start backup-tumblepop.timer
+for app in dashboard tumblepop stardate esophagus; do
+    systemctl --user enable "backup-${app}.timer"
+    systemctl --user start "backup-${app}.timer"
+done
 
-echo -e "${GREEN}✓${RESET} Backup timer enabled (every 6 hours)"
-echo -e "${DIM}  Local: rsync to admin@nas:/share/backups/tumblepop${RESET}"
-echo -e "${DIM}  Offsite: rclone to b2:tumblepop-backups${RESET}"
-echo -e "${DIM}  Check status: systemctl --user status backup-tumblepop.timer${RESET}"
+echo -e "${GREEN}✓${RESET} Backup timers enabled (daily, staggered)"
+echo -e "${DIM}  dashboard 00:00 · tumblepop 06:00 · stardate 12:00 · esophagus 18:00${RESET}"
+echo -e "${DIM}  Retention: 7 days local, 30 days B2${RESET}"
+echo -e "${DIM}  Check status: systemctl --user list-timers 'backup-*'${RESET}"
