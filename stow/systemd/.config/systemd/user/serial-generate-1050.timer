@@ -1,0 +1,10 @@
+[Unit]
+Description=Serial fiction generation at 10:50 AM
+
+[Timer]
+OnCalendar=*-*-* 10:50:00
+Persistent=true
+Unit=serial-generate@the-broken-oath.service
+
+[Install]
+WantedBy=timers.target

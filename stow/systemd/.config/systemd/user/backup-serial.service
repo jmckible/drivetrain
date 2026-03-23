@@ -1,0 +1,8 @@
+[Unit]
+Description=Backup Serial databases
+
+[Service]
+Type=oneshot
+ExecStart=%h/bin/backup-serial
+StandardOutput=append:%h/backups/serial.log
+StandardError=append:%h/backups/serial.log
