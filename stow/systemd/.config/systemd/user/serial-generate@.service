@@ -3,7 +3,7 @@ Description=Serial fiction generation for %i
 
 [Service]
 Type=oneshot
-WorkingDirectory=%h/dev/serial
-ExecStart=%h/.local/bin/claude -p --allowedTools Bash,Read,Write,Glob,Grep,Agent "Run /serial:generate %i"
-StandardOutput=append:%h/dev/serial/log/generate.log
-StandardError=append:%h/dev/serial/log/generate.log
+WorkingDirectory=/home/jmckible/dev/serial
+ExecStart=/home/jmckible/dev/serial/bin/generate %i
+StandardOutput=append:/home/jmckible/dev/serial/log/generate.log
+StandardError=append:/home/jmckible/dev/serial/log/generate.log
