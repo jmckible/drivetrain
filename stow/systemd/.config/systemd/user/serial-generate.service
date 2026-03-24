@@ -1,0 +1,9 @@
+[Unit]
+Description=Serial fiction generation for all active stories
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/jmckible/dev/serial
+ExecStart=/home/jmckible/dev/serial/bin/generate-all
+StandardOutput=append:/home/jmckible/dev/serial/log/generate.log
+StandardError=append:/home/jmckible/dev/serial/log/generate.log
