@@ -18,6 +18,7 @@ return {
     },
   },
   opts = {
+    close_if_last_window = true,
     filesystem = {
       filtered_items = {
         visible = true, -- Show hidden files by default

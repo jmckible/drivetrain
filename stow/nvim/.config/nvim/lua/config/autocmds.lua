@@ -35,24 +35,6 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
--- Close neo-tree if it's the last window (prevents full-screen file tree after closing last buffer)
-vim.api.nvim_create_autocmd("BufEnter", {
-  group = vim.api.nvim_create_augroup("close_neo_tree_last_window", { clear = true }),
-  callback = function()
-    local dominated_by_neotree = true
-    for _, win in ipairs(vim.api.nvim_list_wins()) do
-      local buf = vim.api.nvim_win_get_buf(win)
-      local ft = vim.bo[buf].filetype
-      if ft ~= "neo-tree" and ft ~= "" then
-        dominated_by_neotree = false
-        break
-      end
-    end
-    if dominated_by_neotree then
-      vim.cmd("quit")
-    end
-  end,
-})
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "haml",
