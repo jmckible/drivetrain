@@ -111,6 +111,7 @@ export PATH=/home/jmckible/.opencode/bin:$PATH
 
 alias c='claude'
 alias cc='CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=true claude --dangerously-skip-permissions'
+pcc() { if [ -f .env.production ]; then source .env.production && cc; else cc; fi; }
 
 # Tmux Claude layout: top split (cc left, shell right), terminal bottom
 tdc() {
