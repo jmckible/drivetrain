@@ -96,8 +96,12 @@ header "⌨️  Additional Components"
 ./install/slack.sh
 ./install/cpulimit.sh
 ./install/claude-code.sh
-./install/cloudflared.sh
-./install/backups.sh
+
+# Desktop-only (server services)
+if [ "$(cat /tmp/drivetrain-machine-type 2>/dev/null)" = "desktop" ]; then
+    ./install/cloudflared.sh
+    ./install/backups.sh
+fi
 
 # Final summary
 echo -e "\n${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
