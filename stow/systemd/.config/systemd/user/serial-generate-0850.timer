@@ -1,8 +1,8 @@
 [Unit]
-Description=Serial fiction generation at 6:50 AM
+Description=Serial fiction generation at 8:50 AM
 
 [Timer]
-OnCalendar=*-*-* 06:50:00
+OnCalendar=*-*-* 08:50:00
 Persistent=true
 Unit=serial-generate.service
 
