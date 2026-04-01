@@ -1,0 +1,2 @@
+# Logitech HD Pro Webcam C920 — apply custom v4l2 settings on connect
+ACTION=="add", SUBSYSTEM=="video4linux", ATTR{name}=="HD Pro Webcam C920", ATTR{index}=="0", RUN+="/home/jmckible/.local/bin/webcam-setup"

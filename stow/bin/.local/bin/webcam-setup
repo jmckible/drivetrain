@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Configure Logitech C920 webcam settings
+# Triggered by udev rule on device connect, or run manually
+
+DEVICE="/dev/video0"
+
+# Wait briefly for device to be ready
+sleep 1
+
+if [[ ! -e "$DEVICE" ]]; then
+    exit 0
+fi
+
+v4l2-ctl -d "$DEVICE" --set-ctrl=backlight_compensation=1
+v4l2-ctl -d "$DEVICE" --set-ctrl=sharpness=160
+v4l2-ctl -d "$DEVICE" --set-ctrl=saturation=145

@@ -123,6 +123,12 @@ if [[ $MACHINE_TYPE == "desktop" || $MACHINE_TYPE == "laptop" ]]; then
     if [[ -f "$TEMPLATE_DIR/waybar/style.css" ]]; then
         cp "$TEMPLATE_DIR/waybar/style.css" ~/.config/waybar/style.css
     fi
+
+    # Copy udev rules if present
+    if [[ -d "$TEMPLATE_DIR/udev" ]]; then
+        sudo cp "$TEMPLATE_DIR/udev/"*.rules /etc/udev/rules.d/
+        sudo udevadm control --reload-rules
+    fi
 else
     echo "Invalid machine type. Please manually edit configs in ~/.config/hypr/"
 fi
