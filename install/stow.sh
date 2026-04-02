@@ -11,6 +11,7 @@ rm -rf ~/.config/nvim
 rm -rf ~/.config/waybar
 rm -rf ~/.config/hypr
 rm -rf ~/.config/alacritty
+rm -rf ~/.config/ghostty
 rm -rf ~/.local/bin
 rm -rf ~/.config/git
 rm -f ~/.bashrc ~/.bash_profile ~/.bash_logout
