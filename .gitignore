@@ -11,3 +11,11 @@ stow/nvim/.config/nvim/lazy-lock.json
 
 # Auto-updated binaries that follow symlinks into stow
 stow/bin/.local/bin/claude
+
+# Omarchy-managed npx wrappers
+stow/bin/.local/bin/codex
+stow/bin/.local/bin/copilot
+stow/bin/.local/bin/gemini
+stow/bin/.local/bin/opencode
+stow/bin/.local/bin/pi
+stow/bin/.local/bin/playwright-cli
