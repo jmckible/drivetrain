@@ -85,6 +85,24 @@ Album links on the Dashboard web app open in the local Apple Music PWA (chromium
 
 **Tailscale Funnel** must be configured: `tailscale funnel --bg --set-path /music 9111`. This exposes the listener publicly so the Dashboard server can reach it. The listener only accepts `music.apple.com` URLs.
 
+## Dashboard Agent Timers
+
+Systemd user timers run `claude -p` to invoke dashboard skills (`/dashboard:digest`, `/dashboard:history`, `/dashboard:cycling`). Entry point is `~/dev/dashboard/bin/agent <task>`.
+
+**Services:** `dashboard-digest.service`, `dashboard-history.service`, `dashboard-cycling.service`
+
+**Schedule:**
+- 7:00 AM — digest, history, cycling
+- 11:00 AM — digest
+- 3:00 PM — digest
+- 8:00 PM — digest, cycling
+
+**Auth:** Long-lived OAuth token in `~/.claude/.credentials.json` (expires April 2027). Regenerate via `claude setup-token` — requires a TTY, so run interactively. The `expiresAt` field in the credentials JSON must also be updated to match.
+
+**Requires:** `loginctl enable-linger jmckible` so timers run without an active login session.
+
+**Logs:** `~/dev/dashboard/log/agent.log` and `journalctl --user -u dashboard-digest`
+
 ## Critical Rules
 
 1. **Never modify `~/.local/share/omarchy/default/`** - overwritten on Omarchy updates. Layer overrides via source order instead.

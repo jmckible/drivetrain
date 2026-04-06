@@ -1,0 +1,10 @@
+[Unit]
+Description=Dashboard digest curation at 11:00 AM
+
+[Timer]
+OnCalendar=*-*-* 11:00:00
+Persistent=true
+Unit=dashboard-digest.service
+
+[Install]
+WantedBy=timers.target
