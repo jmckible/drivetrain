@@ -1,8 +1,8 @@
 [Unit]
-Description=Dashboard cycling events at 8:00 PM
+Description=Dashboard cycling events at 3:00 PM
 
 [Timer]
-OnCalendar=*-*-* 20:00:00
+OnCalendar=*-*-* 15:00:00
 Persistent=true
 Unit=dashboard-cycling.service
 

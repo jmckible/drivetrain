@@ -94,8 +94,8 @@ Systemd user timers run `claude -p` to invoke dashboard skills (`/dashboard:dige
 **Schedule:**
 - 7:00 AM — digest, history, cycling
 - 11:00 AM — digest
-- 3:00 PM — digest
-- 8:00 PM — digest, cycling
+- 3:00 PM — digest, cycling
+- 8:00 PM — digest
 
 **Auth:** Long-lived OAuth token in `~/.claude/.credentials.json` (expires April 2027). Regenerate via `claude setup-token` — requires a TTY, so run interactively. The `expiresAt` field in the credentials JSON must also be updated to match.
 
