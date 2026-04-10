@@ -135,10 +135,8 @@ tdc() {
   tmux select-pane -t "$top_pane"
 }
 
-# Auto-load vocal worktree functions when in vocal repo
-if [[ -f "bin/worktree-functions.sh" ]]; then
-  source "bin/worktree-functions.sh"
-fi
+# Vocal worktree functions (always available)
+[[ -f ~/dev/vocal/bin/worktree-functions.sh ]] && source ~/dev/vocal/bin/worktree-functions.sh
 
 # Parallel test shortcuts
 alias pspec="PARALLEL_TEST_PROCESSORS=4 bundle exec rake parallel:spec"
