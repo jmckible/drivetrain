@@ -143,13 +143,20 @@ sleep 1
 uwsm-app -- elephant &>/dev/null &
 uwsm-app -- walker --gapplication-service &>/dev/null &
 
-# Enable and start wallpaper auto-rotation timer
-if [[ -f ~/.config/systemd/user/omarchy-wallpaper-auto.timer ]]; then
-    echo -e "${BLUE}▸${RESET} Enabling wallpaper auto-rotation..."
+# Migrate from old wallpaper-auto timer if present
+if systemctl --user is-enabled omarchy-wallpaper-auto.timer &>/dev/null; then
+    systemctl --user disable --now omarchy-wallpaper-auto.timer &>/dev/null
+    rm -f ~/.config/systemd/user/omarchy-wallpaper-auto.timer
+    rm -f ~/.config/systemd/user/omarchy-wallpaper-auto.service
+fi
+
+# Enable and start background auto-rotation timer
+if [[ -f ~/.config/systemd/user/omarchy-background-auto.timer ]]; then
+    echo -e "${BLUE}▸${RESET} Enabling background auto-rotation..."
     systemctl --user daemon-reload
-    systemctl --user enable omarchy-wallpaper-auto.timer
-    systemctl --user start omarchy-wallpaper-auto.timer
-    echo -e "${GREEN}✓${RESET} Wallpaper auto-rotation enabled"
+    systemctl --user enable omarchy-background-auto.timer
+    systemctl --user start omarchy-background-auto.timer
+    echo -e "${GREEN}✓${RESET} Background auto-rotation enabled"
 fi
 
 # Sync theme backgrounds to deployed locations

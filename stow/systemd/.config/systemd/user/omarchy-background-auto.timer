@@ -1,5 +1,5 @@
 [Unit]
-Description=Omarchy Automatic Wallpaper Rotation Timer
+Description=Omarchy Automatic Background Rotation Timer
 After=graphical-session.target
 
 [Timer]

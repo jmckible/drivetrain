@@ -1,5 +1,5 @@
 [Unit]
-Description=Omarchy Automatic Wallpaper Rotation
+Description=Omarchy Automatic Background Rotation
 After=graphical-session.target
 
 [Service]
