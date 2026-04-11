@@ -152,4 +152,14 @@ if [[ -f ~/.config/systemd/user/omarchy-wallpaper-auto.timer ]]; then
     echo -e "${GREEN}✓${RESET} Wallpaper auto-rotation enabled"
 fi
 
+# Sync theme backgrounds to deployed locations
+REPO_BACKGROUNDS="$(pwd)/themes/drivetrain/backgrounds"
+if [[ -d "$REPO_BACKGROUNDS" ]]; then
+    cp -u "$REPO_BACKGROUNDS"/* ~/.config/omarchy/themes/drivetrain/backgrounds/ 2>/dev/null
+    cp -u "$REPO_BACKGROUNDS"/* ~/.config/omarchy/current/theme/backgrounds/ 2>/dev/null
+    cp -u "$REPO_BACKGROUNDS"/* ~/.config/omarchy/backgrounds/ 2>/dev/null
+    cp -u "$(pwd)/themes/drivetrain/backgrounds.conf" ~/.config/omarchy/current/theme/backgrounds.conf 2>/dev/null
+    echo -e "${GREEN}✓${RESET} Theme backgrounds synced"
+fi
+
 echo -e "${GREEN}✓${RESET} Configuration deployed successfully"
