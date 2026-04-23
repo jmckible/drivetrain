@@ -58,8 +58,8 @@ if git rev-parse --git-dir > /dev/null 2>&1; then
   output+="${reset}"
 fi
 
-# Segment 3: Model name (only if NOT claude-opus-4-6)
-if [ -n "$model_id" ] && [[ ! "$model_id" =~ claude-opus-4-6 ]]; then
+# Segment 3: Model name (only if NOT the current default, Opus 4.7 1M context)
+if [ -n "$model_id" ] && [[ ! "$model_id" =~ claude-opus-4-7\[1m\] ]]; then
   output+="${sep}${blue_fg} ${model_name}${reset}"
 fi
 
