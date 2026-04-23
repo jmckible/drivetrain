@@ -16,13 +16,14 @@ mcp_count=$(echo "$input" | jq -r '.mcp.servers | length // 0' 2>/dev/null)
 # Replace home directory with ~
 cwd="${cwd/#$HOME/\~}"
 
-# ANSI color codes using printf (Drivetrain palette — text only)
-yellow_fg=$(printf '\033[38;2;210;155;64m')
-aqua_fg=$(printf '\033[38;2;104;157;106m')
-blue_fg=$(printf '\033[38;2;97;175;239m')
-dim_fg=$(printf '\033[38;2;100;100;110m')
-red_fg=$(printf '\033[38;2;204;36;29m')
-green_fg=$(printf '\033[38;2;43;186;197m')
+# ANSI indexed colors — terminal palette controls the actual hues,
+# so Omarchy theme changes flow through automatically.
+yellow_fg=$(printf '\033[33m')
+aqua_fg=$(printf '\033[32m')
+blue_fg=$(printf '\033[34m')
+dim_fg=$(printf '\033[90m')
+red_fg=$(printf '\033[31m')
+green_fg=$(printf '\033[36m')
 reset=$(printf '\033[0m')
 
 # Separator
