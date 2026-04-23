@@ -87,15 +87,16 @@ Album links on the Dashboard web app open in the local Apple Music PWA (chromium
 
 ## Dashboard Agent Timers
 
-Systemd user timers run `claude -p` to invoke dashboard skills (`/dashboard:digest`, `/dashboard:history`, `/dashboard:cycling`). Entry point is `~/dev/dashboard/bin/agent <task>`.
+Systemd user timers run `claude -p` to invoke dashboard skills (`/dashboard:digest`, `/dashboard:history`, `/dashboard:cycling`, `/dashboard:reflect`). Entry point is `~/dev/dashboard/bin/agent <task>`.
 
-**Services:** `dashboard-digest.service`, `dashboard-history.service`, `dashboard-cycling.service`
+**Services:** `dashboard-digest.service`, `dashboard-history.service`, `dashboard-cycling.service`, `dashboard-reflect.service`
 
 **Schedule:**
 - 7:00 AM — digest, history, cycling
 - 11:00 AM — digest
 - 3:00 PM — digest, cycling
 - 8:00 PM — digest
+- Sunday 6:00 PM — reflect
 
 **Auth:** Long-lived OAuth token in `~/.claude/.credentials.json` (expires April 2027). Regenerate via `claude setup-token` — requires a TTY, so run interactively. The `expiresAt` field in the credentials JSON must also be updated to match.
 

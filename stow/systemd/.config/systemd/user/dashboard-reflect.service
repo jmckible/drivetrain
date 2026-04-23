@@ -1,0 +1,11 @@
+[Unit]
+Description=Dashboard weekly reflection
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/jmckible/dev/dashboard
+Environment=PATH=/home/jmckible/.local/bin:/home/jmckible/.local/share/mise/installs/ruby/3.4.7/bin:/usr/local/bin:/usr/bin
+ExecStart=/home/jmckible/dev/dashboard/bin/agent reflect
+StandardOutput=append:/home/jmckible/dev/dashboard/log/agent.log
+StandardError=append:/home/jmckible/dev/dashboard/log/agent.log
+TimeoutStartSec=1200
