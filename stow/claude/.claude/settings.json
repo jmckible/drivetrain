@@ -28,7 +28,7 @@
     }
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true,
-  "effortLevel": "xhigh"
+  "theme": "auto"
 }
