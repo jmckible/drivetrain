@@ -4,7 +4,8 @@
       "Skill(omarchy)",
       "Read(~/.config/hypr/**)",
       "Bash(npx eslint*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "statusLine": {
     "type": "command",
@@ -30,5 +31,6 @@
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
-  "theme": "auto"
+  "theme": "auto",
+  "skipAutoPermissionPrompt": true
 }
