@@ -20,3 +20,5 @@
 	autoSetupRemote = true
 [fetch]
 	prune = true
+[includeIf "gitdir:~/dev/vocal*/"]
+	path = ~/.config/git/config-vocal
