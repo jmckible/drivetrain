@@ -8,4 +8,4 @@ Environment=PATH=/home/jmckible/.local/bin:/home/jmckible/.local/share/mise/inst
 ExecStart=/home/jmckible/dev/dashboard/bin/agent digest
 StandardOutput=append:/home/jmckible/dev/dashboard/log/agent.log
 StandardError=append:/home/jmckible/dev/dashboard/log/agent.log
-TimeoutStartSec=600
+TimeoutStartSec=1200
