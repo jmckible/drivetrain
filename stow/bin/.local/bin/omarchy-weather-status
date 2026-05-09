@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Override: pin wttr.in to Petaluma instead of IP-based geolocation,
+# which puts us in Hayward.
+
+LOCATION="Petaluma"
+
+weather=$(curl -fsS --max-time 4 "https://wttr.in/${LOCATION}?format=%l|%t|%w" 2>/dev/null | tr -d '\n')
+
+if [[ -z $weather ]]; then
+  echo "Weather unavailable"
+  exit 1
+fi
+
+IFS='|' read -r place temperature wind <<< "$weather"
+place=${place%%,*}
+place=${place^}
+temperature=${temperature#+}
+
+echo "$(omarchy-weather-icon)    $place  ·  Temp $temperature  ·  Wind $wind"
