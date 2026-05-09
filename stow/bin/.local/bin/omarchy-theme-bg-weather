@@ -25,18 +25,19 @@ get_weather_condition() {
         return 0
     fi
 
-    # Fetch weather (5 second timeout)
-    local condition=$(curl -s -m 5 "wttr.in/${CITY:-Petaluma}?format=%C" 2>/dev/null)
+    # Fetch weather code (3 second timeout, fail on HTTP errors)
+    local code=$(curl -fsS --max-time 3 "https://wttr.in/${CITY:-Petaluma}?format=j1" 2>/dev/null \
+        | jq -er '.current_condition[0].weatherCode' 2>/dev/null)
 
-    if [[ -z "$condition" ]]; then
+    if [[ ! $code =~ ^[0-9]+$ ]]; then
         echo "default"
         return 1
     fi
 
-    # Normalize to clear vs cloudy
-    case "${condition,,}" in  # lowercase
-        *clear*|*sunny*)  echo "clear" ;;
-        *)                echo "cloudy" ;;
+    case $code in
+        113|116)              echo "clear" ;;
+        119|122|143|248|260)  echo "cloudy" ;;
+        *)                    echo "rainy" ;;
     esac | tee "$cache_file"
 }
 
@@ -91,6 +92,9 @@ else
         WEATHER_VAR="${WEATHER^^}"
         if [[ -n "${!WEATHER_VAR}" ]]; then
             echo "Using: $WEATHER_VAR (weather-based)"
+            echo "  → Config variable defined with wallpapers"
+        elif [[ "$WEATHER" == "rainy" && -n "$CLOUDY" ]]; then
+            echo "Using: CLOUDY (fallback, RAINY not defined)"
             echo "  → Config variable defined with wallpapers"
         else
             echo "Using: $PERIOD (fallback, no weather variants defined)"
