@@ -1,0 +1,140 @@
+#!/bin/bash
+
+# Manage the wallpaper bucket override.
+#
+# Subcommands:
+#   status   Print waybar JSON ({text, tooltip, class}) for the current state.
+#   pick     Walker dmenu picker — set/clear the override.
+#   set BKT  Set override to bucket BKT (one of MORNING AFTERNOON DUSK NIGHT
+#            CLEAR CLOUDY RAINY).
+#   auto     Clear the override (return to time/weather-derived bucket).
+#
+# After set/auto, refreshes the wallpaper and signals waybar (RTMIN+11).
+
+source "$HOME/.local/bin/_omarchy-bg-bucket-lib.sh"
+
+WAYBAR_SIGNAL=11
+
+icon_for() {
+    case "$1" in
+        MORNING)   echo "󰖝" ;;
+        AFTERNOON) echo "󰖨" ;;
+        DUSK)      echo "󰖛" ;;
+        NIGHT)     echo "󰖔" ;;
+        CLEAR)     echo "󰖙" ;;
+        CLOUDY)    echo "󰖐" ;;
+        RAINY)     echo "󰖗" ;;
+        *)         echo "" ;;
+    esac
+}
+
+label_for() {
+    case "$1" in
+        MORNING)   echo "Morning" ;;
+        AFTERNOON) echo "Afternoon" ;;
+        DUSK)      echo "Dusk" ;;
+        NIGHT)     echo "Night" ;;
+        CLEAR)     echo "Clear" ;;
+        CLOUDY)    echo "Cloudy" ;;
+        RAINY)     echo "Rainy" ;;
+        *)         echo "$1" ;;
+    esac
+}
+
+refresh_wallpaper() {
+    omarchy-theme-bg-auto >/dev/null 2>&1 &
+}
+
+signal_waybar() {
+    pkill -RTMIN+$WAYBAR_SIGNAL waybar 2>/dev/null
+}
+
+cmd_status() {
+    local effective natural override icon text tooltip class
+    effective=$(bg_effective_bucket)
+    natural=$(bg_natural_bucket)
+    override=$(bg_active_override)
+    icon=$(icon_for "$effective")
+    text="$icon"
+
+    if [[ -n "$override" ]]; then
+        class="override"
+        tooltip="Override: $(label_for "$effective")\nNatural: $(label_for "$natural")\nClears at next time-period change"
+    else
+        class="auto"
+        local weather
+        weather=$(bg_weather)
+        tooltip="Auto: $(label_for "$effective")"
+        [[ -n "$weather" && "$weather" != "default" ]] && tooltip+=" ($weather)"
+    fi
+
+    # Escape backslashes/newlines for JSON
+    tooltip="${tooltip//\\/\\\\}"
+    tooltip="${tooltip//$'\n'/\\n}"
+
+    printf '{"text": "%s", "tooltip": "%s", "class": "%s"}\n' "$text" "$tooltip" "$class"
+}
+
+cmd_pick() {
+    local options=""
+    local b override
+    override=$(bg_active_override)
+
+    for b in $(bg_available_buckets); do
+        options+="$(icon_for "$b")  $(label_for "$b")"$'\n'
+    done
+
+    if [[ -n "$override" ]]; then
+        options+="↺  Auto (clear override)"
+    else
+        options+="↺  Auto (no override active)"
+    fi
+
+    local choice
+    choice=$(echo -e "$options" | omarchy-launch-walker --dmenu --width 295 --minheight 1 --maxheight 630 -p "Background mode…" 2>/dev/null)
+
+    [[ -z "$choice" ]] && exit 0
+
+    if [[ "$choice" == *"Auto"* ]]; then
+        cmd_auto
+    else
+        local label="${choice##* }"
+        case "$label" in
+            Morning)   cmd_set MORNING ;;
+            Afternoon) cmd_set AFTERNOON ;;
+            Dusk)      cmd_set DUSK ;;
+            Night)     cmd_set NIGHT ;;
+            Clear)     cmd_set CLEAR ;;
+            Cloudy)    cmd_set CLOUDY ;;
+            Rainy)     cmd_set RAINY ;;
+        esac
+    fi
+}
+
+cmd_set() {
+    local bucket="$1"
+    if [[ -z "$bucket" ]]; then
+        echo "usage: omarchy-bg-mode set BUCKET" >&2
+        exit 1
+    fi
+    bg_set_override "$bucket"
+    refresh_wallpaper
+    signal_waybar
+}
+
+cmd_auto() {
+    bg_clear_override
+    refresh_wallpaper
+    signal_waybar
+}
+
+case "${1:-status}" in
+    status) cmd_status ;;
+    pick)   cmd_pick ;;
+    set)    shift; cmd_set "$@" ;;
+    auto|clear) cmd_auto ;;
+    *)
+        echo "usage: omarchy-bg-mode {status|pick|set BUCKET|auto}" >&2
+        exit 1
+        ;;
+esac

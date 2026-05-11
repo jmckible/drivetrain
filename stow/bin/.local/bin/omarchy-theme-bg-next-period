@@ -1,122 +1,31 @@
 #!/bin/bash
 
-# Cycles through backgrounds for the current time period only
-# Similar to omarchy-theme-bg-auto but doesn't randomize - cycles sequentially
+# Cycles sequentially through wallpapers in the current bucket
+# (time/weather-derived, or manually overridden via omarchy-bg-mode).
+
+source "$HOME/.local/bin/_omarchy-bg-bucket-lib.sh"
 
 BACKGROUNDS_DIR="$HOME/.config/omarchy/current/theme/backgrounds"
-CONFIG_FILE="$HOME/.config/omarchy/current/theme/backgrounds.conf"
 CURRENT_BACKGROUND_LINK="$HOME/.config/omarchy/current/background"
 
-# Default location (Petaluma, CA) - overridden by config
-LATITUDE="38.23N"
-LONGITUDE="122.64W"
-
-# Load config if it exists
-if [[ -f "$CONFIG_FILE" ]]; then
-    source "$CONFIG_FILE"
-fi
-
-# Get current time in minutes since midnight
-NOW_MINUTES=$(date +%H%M | awk '{h=int($1/100); m=$1%100; print h*60+m}')
-
-# Calculate sunrise and sunset times using sunwait
 if ! command -v sunwait &> /dev/null; then
     echo "sunwait not installed, falling back to omarchy-theme-bg-next"
     exec omarchy-theme-bg-next
-    exit
 fi
 
-# Weather detection function (cached for 30 minutes)
-get_weather_condition() {
-    local cache_file="/tmp/omarchy-weather-cache"
-    local cache_age=1800  # 30 minutes
+BUCKET=$(bg_effective_bucket)
+PERIOD_WALLPAPERS="${!BUCKET}"
 
-    # Check cache freshness
-    if [[ -f "$cache_file" ]] && [[ $(($(date +%s) - $(stat -c %Y "$cache_file"))) -lt $cache_age ]]; then
-        cat "$cache_file"
-        return 0
-    fi
-
-    # Fetch weather (5 second timeout)
-    local condition=$(curl -s -m 5 "wttr.in/${CITY:-Petaluma}?format=%C" 2>/dev/null)
-
-    if [[ -z "$condition" ]]; then
-        echo "default"
-        return 1
-    fi
-
-    # Normalize to clear vs cloudy
-    case "${condition,,}" in  # lowercase
-        *clear*|*sunny*)  echo "clear" ;;
-        *)                echo "cloudy" ;;
-    esac | tee "$cache_file"
-}
-
-# Get today's sunrise and sunset
-SUNRISE_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $1}')
-SUNSET_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $2}')
-
-# Convert to minutes since midnight
-SUNRISE_MINUTES=$(echo "$SUNRISE_TIME" | awk -F: '{print $1*60 + $2}')
-SUNSET_MINUTES=$(echo "$SUNSET_TIME" | awk -F: '{print $1*60 + $2}')
-
-# Calculate period boundaries (in minutes since midnight)
-NOON_MINUTES=$((12 * 60))
-DUSK_START=$((SUNSET_MINUTES - 60))
-DUSK_END=$((SUNSET_MINUTES + 30))
-
-# Determine current period
-if [[ $NOW_MINUTES -ge $SUNRISE_MINUTES && $NOW_MINUTES -lt $NOON_MINUTES ]]; then
-    PERIOD="MORNING"
-elif [[ $NOW_MINUTES -ge $NOON_MINUTES && $NOW_MINUTES -lt $DUSK_START ]]; then
-    PERIOD="AFTERNOON"
-elif [[ $NOW_MINUTES -ge $DUSK_START && $NOW_MINUTES -lt $DUSK_END ]]; then
-    PERIOD="DUSK"
-else
-    PERIOD="NIGHT"
-fi
-
-# Get wallpapers for this period from config
-# For DUSK and NIGHT: use time-only (skip weather)
-# For MORNING and AFTERNOON: try weather-based first, fall back to time-based
-PERIOD_WALLPAPERS=""
-
-if [[ "$PERIOD" == "DUSK" ]] || [[ "$PERIOD" == "NIGHT" ]]; then
-    # Time-only periods (no weather check)
-    PERIOD_VAR="${PERIOD}"
-    PERIOD_WALLPAPERS="${!PERIOD_VAR}"
-else
-    # MORNING or AFTERNOON: try weather-based first
-    WEATHER=$(get_weather_condition)
-
-    if [[ -n "$WEATHER" ]] && [[ "$WEATHER" != "default" ]]; then
-        # Weather available: try CLEAR or CLOUDY
-        WEATHER_VAR="${WEATHER^^}"  # CLEAR or CLOUDY
-        PERIOD_WALLPAPERS="${!WEATHER_VAR}"
-    fi
-
-    # Fall back to time-based (MORNING or AFTERNOON) if no weather variants
-    if [[ -z "$PERIOD_WALLPAPERS" ]]; then
-        PERIOD_VAR="${PERIOD}"
-        PERIOD_WALLPAPERS="${!PERIOD_VAR}"
-    fi
-fi
-
-# If no config or empty period, fall back to all wallpapers
 if [[ -z "$PERIOD_WALLPAPERS" ]]; then
     exec omarchy-theme-bg-next
-    exit
 fi
 
-# Convert multiline/space-separated list to array, filtering empty entries
 WALLPAPER_NAMES=()
 while IFS= read -r line; do
-    # Trim whitespace and skip empty lines
     line=$(echo "$line" | xargs)
     [[ -n "$line" ]] && WALLPAPER_NAMES+=("$line")
 done <<< "$PERIOD_WALLPAPERS"
 
-# Build full paths (sorted for consistent cycling)
 PERIOD_BACKGROUNDS=()
 for name in "${WALLPAPER_NAMES[@]}"; do
     FULL_PATH="$BACKGROUNDS_DIR/$name"
@@ -125,22 +34,19 @@ for name in "${WALLPAPER_NAMES[@]}"; do
     fi
 done
 
-# Sort for consistent order
 IFS=$'\n' PERIOD_BACKGROUNDS=($(sort <<<"${PERIOD_BACKGROUNDS[*]}"))
 unset IFS
 
 if [[ ${#PERIOD_BACKGROUNDS[@]} -eq 0 ]]; then
-    notify-send "No wallpapers for $PERIOD period" -t 2000
+    notify-send "No wallpapers for $BUCKET bucket" -t 2000
     exit 1
 fi
 
-# Get current background from symlink
 CURRENT_BACKGROUND=""
 if [[ -L "$CURRENT_BACKGROUND_LINK" ]]; then
     CURRENT_BACKGROUND=$(readlink "$CURRENT_BACKGROUND_LINK")
 fi
 
-# Find current background index in this period's list
 INDEX=-1
 for i in "${!PERIOD_BACKGROUNDS[@]}"; do
     if [[ "${PERIOD_BACKGROUNDS[$i]}" == "$CURRENT_BACKGROUND" ]]; then
@@ -149,24 +55,19 @@ for i in "${!PERIOD_BACKGROUNDS[@]}"; do
     fi
 done
 
-# Get next background (wrap around within period)
 if [[ $INDEX -eq -1 ]]; then
-    # Current background not in period list, use first
     NEW_BACKGROUND="${PERIOD_BACKGROUNDS[0]}"
 else
     NEXT_INDEX=$(((INDEX + 1) % ${#PERIOD_BACKGROUNDS[@]}))
     NEW_BACKGROUND="${PERIOD_BACKGROUNDS[$NEXT_INDEX]}"
 fi
 
-# Update background symlink
 ln -nsf "$NEW_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
 
-# Always ensure swaybg is running (in case it was killed by suspend/resume)
 if ! pgrep -x swaybg >/dev/null; then
     uwsm-app -- swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill &
     sleep 0.5
 elif [[ "$NEW_BACKGROUND" != "$CURRENT_BACKGROUND" ]]; then
-    # Background changed, restart swaybg
     pkill -x swaybg
     sleep 0.3
     uwsm-app -- swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill &

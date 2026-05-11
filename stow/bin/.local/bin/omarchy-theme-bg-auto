@@ -1,140 +1,36 @@
 #!/bin/bash
 
-# Automatically selects wallpaper based on time of day
-# Uses sunwait to calculate sunrise/sunset times and backgrounds.conf for mapping
+# Selects a wallpaper from the bucket appropriate for the current time/weather,
+# honoring any active manual override (set via omarchy-bg-mode).
+
+source "$HOME/.local/bin/_omarchy-bg-bucket-lib.sh"
 
 BACKGROUNDS_DIR="$HOME/.config/omarchy/current/theme/backgrounds"
-CONFIG_FILE="$HOME/.config/omarchy/current/theme/backgrounds.conf"
 CURRENT_BACKGROUND_LINK="$HOME/.config/omarchy/current/background"
 
-# Default location (Petaluma, CA) - overridden by config
-LATITUDE="38.23N"
-LONGITUDE="122.64W"
-
-# Load config if it exists
-if [[ -f "$CONFIG_FILE" ]]; then
-    source "$CONFIG_FILE"
-fi
-
-# Get current time in minutes since midnight
-NOW_MINUTES=$(date +%H%M | awk '{h=int($1/100); m=$1%100; print h*60+m}')
-
-# Calculate sunrise and sunset times using sunwait
-# Format: HHMM
 if ! command -v sunwait &> /dev/null; then
     echo "sunwait not installed, falling back to omarchy-theme-bg-next"
     exec omarchy-theme-bg-next
-    exit
 fi
 
-# Weather detection function (cached for 30 minutes)
-# Uses wttr.in JSON API + numeric WWO weather codes for stable matching.
-get_weather_condition() {
-    local cache_file="/tmp/omarchy-weather-cache"
-    local cache_age=1800  # 30 minutes
+BUCKET=$(bg_effective_bucket)
+PERIOD_WALLPAPERS="${!BUCKET}"
 
-    # Check cache freshness
-    if [[ -f "$cache_file" ]] && [[ $(($(date +%s) - $(stat -c %Y "$cache_file"))) -lt $cache_age ]]; then
-        cat "$cache_file"
-        return 0
-    fi
-
-    # Fetch weather code (3 second timeout, fail on HTTP errors)
-    local code=$(curl -fsS --max-time 3 "https://wttr.in/${CITY:-Petaluma}?format=j1" 2>/dev/null \
-        | jq -er '.current_condition[0].weatherCode' 2>/dev/null)
-
-    if [[ ! $code =~ ^[0-9]+$ ]]; then
-        echo "default"
-        return 1
-    fi
-
-    # WWO weather codes → wallpaper bucket
-    #   113 Sunny, 116 Partly cloudy            → clear
-    #   119 Cloudy, 122 Overcast,
-    #   143 Mist, 248 Fog, 260 Freezing fog     → cloudy
-    #   anything else (rain/snow/thunder/etc.)  → rainy
-    case $code in
-        113|116)              echo "clear" ;;
-        119|122|143|248|260)  echo "cloudy" ;;
-        *)                    echo "rainy" ;;
-    esac | tee "$cache_file"
-}
-
-# Get today's sunrise and sunset
-SUNRISE_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $1}')
-SUNSET_TIME=$(sunwait list civil "$LATITUDE" "$LONGITUDE" | awk -F', ' '{print $2}')
-
-# Convert to minutes since midnight
-SUNRISE_MINUTES=$(echo "$SUNRISE_TIME" | awk -F: '{print $1*60 + $2}')
-SUNSET_MINUTES=$(echo "$SUNSET_TIME" | awk -F: '{print $1*60 + $2}')
-
-# Calculate period boundaries (in minutes since midnight)
-NOON_MINUTES=$((12 * 60))
-DUSK_START=$((SUNSET_MINUTES - 60))
-DUSK_END=$((SUNSET_MINUTES + 30))
-
-# Determine current period
-if [[ $NOW_MINUTES -ge $SUNRISE_MINUTES && $NOW_MINUTES -lt $NOON_MINUTES ]]; then
-    PERIOD="MORNING"
-elif [[ $NOW_MINUTES -ge $NOON_MINUTES && $NOW_MINUTES -lt $DUSK_START ]]; then
-    PERIOD="AFTERNOON"
-elif [[ $NOW_MINUTES -ge $DUSK_START && $NOW_MINUTES -lt $DUSK_END ]]; then
-    PERIOD="DUSK"
-else
-    PERIOD="NIGHT"
-fi
-
-# Get wallpapers for this period from config
-# For DUSK and NIGHT: use time-only (skip weather)
-# For MORNING and AFTERNOON: try weather-based first, fall back to time-based
-PERIOD_WALLPAPERS=""
-
-if [[ "$PERIOD" == "DUSK" ]] || [[ "$PERIOD" == "NIGHT" ]]; then
-    # Time-only periods (no weather check)
-    PERIOD_VAR="${PERIOD}"
-    PERIOD_WALLPAPERS="${!PERIOD_VAR}"
-else
-    # MORNING or AFTERNOON: try weather-based first
-    WEATHER=$(get_weather_condition)
-
-    if [[ -n "$WEATHER" ]] && [[ "$WEATHER" != "default" ]]; then
-        # Weather available: try CLEAR, CLOUDY, or RAINY
-        WEATHER_VAR="${WEATHER^^}"
-        PERIOD_WALLPAPERS="${!WEATHER_VAR}"
-
-        # RAINY is optional — fall back to CLOUDY if undefined
-        if [[ -z "$PERIOD_WALLPAPERS" && "$WEATHER" == "rainy" ]]; then
-            PERIOD_WALLPAPERS="$CLOUDY"
-        fi
-    fi
-
-    # Fall back to time-based (MORNING or AFTERNOON) if no weather variants
-    if [[ -z "$PERIOD_WALLPAPERS" ]]; then
-        PERIOD_VAR="${PERIOD}"
-        PERIOD_WALLPAPERS="${!PERIOD_VAR}"
-    fi
-fi
-
-# If no config or empty period, fall back to all wallpapers
+# If config or bucket is empty, fall back to all wallpapers
 if [[ -z "$PERIOD_WALLPAPERS" ]]; then
     mapfile -d '' -t ALL_BACKGROUNDS < <(find -L "$BACKGROUNDS_DIR" -type f -print0 | sort -z)
     if [[ ${#ALL_BACKGROUNDS[@]} -eq 0 ]]; then
         notify-send "No wallpapers found" -t 2000
         exit 1
     fi
-    # Pick random wallpaper
-    RANDOM_INDEX=$((RANDOM % ${#ALL_BACKGROUNDS[@]}))
-    NEW_BACKGROUND="${ALL_BACKGROUNDS[$RANDOM_INDEX]}"
+    NEW_BACKGROUND="${ALL_BACKGROUNDS[$((RANDOM % ${#ALL_BACKGROUNDS[@]}))]}"
 else
-    # Convert multiline/space-separated list to array, filtering empty entries
     WALLPAPER_NAMES=()
     while IFS= read -r line; do
-        # Trim whitespace and skip empty lines
         line=$(echo "$line" | xargs)
         [[ -n "$line" ]] && WALLPAPER_NAMES+=("$line")
     done <<< "$PERIOD_WALLPAPERS"
 
-    # Build full paths
     PERIOD_BACKGROUNDS=()
     for name in "${WALLPAPER_NAMES[@]}"; do
         FULL_PATH="$BACKGROUNDS_DIR/$name"
@@ -143,34 +39,26 @@ else
         fi
     done
 
-    # Pick random from period wallpapers
     if [[ ${#PERIOD_BACKGROUNDS[@]} -eq 0 ]]; then
-        notify-send "No wallpapers for $PERIOD period" -t 2000
+        notify-send "No wallpapers for $BUCKET bucket" -t 2000
         exit 1
     fi
 
-    RANDOM_INDEX=$((RANDOM % ${#PERIOD_BACKGROUNDS[@]}))
-    NEW_BACKGROUND="${PERIOD_BACKGROUNDS[$RANDOM_INDEX]}"
+    NEW_BACKGROUND="${PERIOD_BACKGROUNDS[$((RANDOM % ${#PERIOD_BACKGROUNDS[@]}))]}"
 fi
 
-# Only change if different from current
 CURRENT_BACKGROUND=""
 if [[ -L "$CURRENT_BACKGROUND_LINK" ]]; then
     CURRENT_BACKGROUND=$(readlink "$CURRENT_BACKGROUND_LINK")
 fi
 
-# Update background symlink if changed
 if [[ "$NEW_BACKGROUND" != "$CURRENT_BACKGROUND" ]]; then
     ln -nsf "$NEW_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
 fi
 
 # Always restart swaybg to ensure correct background is displayed
-# (Handles startup race conditions and ensures sync with current time period)
+# (handles startup races and post-suspend resync)
 pkill -x swaybg 2>/dev/null
 sleep 0.3
-
-# Start swaybg (uwsm-app handles backgrounding via systemd scopes)
 uwsm-app -- swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill &
-
-# Wait briefly for swaybg to start
 sleep 0.5

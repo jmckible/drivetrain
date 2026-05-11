@@ -11,6 +11,7 @@
     "bluetooth",
     "network",
     "pulseaudio",
+    "custom/bg-mode",
     "cpu",
     "battery"
   ],
@@ -145,6 +146,16 @@
     "exec": "$OMARCHY_PATH/default/waybar/indicators/screen-recording.sh",
     "signal": 8,
     "return-type": "json"
+  },
+  "custom/bg-mode": {
+    "exec": "omarchy-bg-mode status",
+    "return-type": "json",
+    "interval": 60,
+    "format": "{}",
+    "on-click": "omarchy-bg-mode pick",
+    "on-click-right": "omarchy-bg-mode auto",
+    "tooltip": true,
+    "signal": 11
   },
   "custom/voxtype": {
     "exec": "omarchy-voxtype-status",
