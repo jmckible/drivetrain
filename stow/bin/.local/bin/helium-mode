@@ -54,10 +54,10 @@ cmd_status() {
     local mode icon tooltip class
     mode=$(effective_mode)
     if [[ "$mode" == "light" ]]; then
-        icon="󰖙"
+        icon="󰛨"
         class="light"
     else
-        icon="󰖔"
+        icon="󰹒"
         class="dark"
     fi
     if is_drivetrain; then
@@ -73,7 +73,7 @@ cmd_pick() {
         notify-send -u low "Helium mode" "Override only applies on drivetrain. Current theme: $(current_theme)"
         return
     fi
-    local options="󰖙  Light"$'\n'"󰖔  Dark"
+    local options="󰛨  Light"$'\n'"󰹒  Dark"
     local choice
     choice=$(echo -e "$options" | omarchy-launch-walker --dmenu --width 220 --minheight 1 --maxheight 200 -p "Helium mode…" 2>/dev/null)
     [[ -z "$choice" ]] && return
