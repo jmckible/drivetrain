@@ -11,6 +11,7 @@
     "bluetooth",
     "network",
     "pulseaudio",
+    "custom/helium-mode",
     "custom/bg-mode",
     "cpu",
     "battery"
@@ -156,6 +157,16 @@
     "on-click-right": "omarchy-bg-mode auto",
     "tooltip": true,
     "signal": 11
+  },
+  "custom/helium-mode": {
+    "exec": "helium-mode status",
+    "return-type": "json",
+    "interval": 0,
+    "format": "{}",
+    "on-click": "helium-mode pick",
+    "on-click-right": "helium-mode toggle",
+    "tooltip": true,
+    "signal": 12
   },
   "custom/voxtype": {
     "exec": "omarchy-voxtype-status",

@@ -1,0 +1,109 @@
+#!/bin/bash
+
+# Manage Helium's light/dark mode override.
+#
+# Omarchy's omarchy-theme-set-browser writes /etc/chromium/policies/managed/
+# color.json with each theme's natural color. For non-drivetrain themes that
+# stands. For drivetrain, this tool can override to light by setting the flag
+# ~/.config/helium-force-light; the theme-set hook then writes a white color.
+#
+# Subcommands:
+#   status     Waybar JSON ({text, tooltip, class}) for the current mode.
+#   pick       Walker dmenu picker — choose Light or Dark (drivetrain only).
+#   set MODE   Force MODE (light|dark) and re-apply.
+#   toggle     Flip light/dark (drivetrain only).
+
+FLAG="$HOME/.config/helium-force-light"
+HOOK="$HOME/.config/omarchy/hooks/theme-set"
+WAYBAR_SIGNAL=12
+
+current_theme() {
+    cat "$HOME/.config/omarchy/current/theme.name" 2>/dev/null
+}
+
+is_drivetrain() {
+    [[ "$(current_theme)" == "drivetrain" ]]
+}
+
+effective_mode() {
+    if is_drivetrain && [[ -f "$FLAG" ]]; then
+        echo "light"
+    else
+        echo "dark"
+    fi
+}
+
+refresh_helium() {
+    pgrep -x helium-browser >/dev/null 2>&1 || return
+    helium-browser --refresh-platform-policy --no-startup-window &>/dev/null &
+}
+
+signal_waybar() {
+    pkill -RTMIN+$WAYBAR_SIGNAL waybar 2>/dev/null
+}
+
+apply() {
+    # Re-derive Omarchy's natural color, then let the hook override if needed.
+    omarchy-theme-set-browser
+    "$HOOK"
+    refresh_helium
+    signal_waybar
+}
+
+cmd_status() {
+    local mode icon tooltip class
+    mode=$(effective_mode)
+    if [[ "$mode" == "light" ]]; then
+        icon="󰖙"
+        class="light"
+    else
+        icon="󰖔"
+        class="dark"
+    fi
+    if is_drivetrain; then
+        tooltip="Helium: ${mode^}\nTheme: drivetrain\nClick to switch"
+    else
+        tooltip="Helium: ${mode^}\nTheme: $(current_theme) (override only applies on drivetrain)"
+    fi
+    printf '{"text": "%s", "tooltip": "%s", "class": "%s"}\n' "$icon" "$tooltip" "$class"
+}
+
+cmd_pick() {
+    if ! is_drivetrain; then
+        notify-send -u low "Helium mode" "Override only applies on drivetrain. Current theme: $(current_theme)"
+        return
+    fi
+    local options="󰖙  Light"$'\n'"󰖔  Dark"
+    local choice
+    choice=$(echo -e "$options" | omarchy-launch-walker --dmenu --width 220 --minheight 1 --maxheight 200 -p "Helium mode…" 2>/dev/null)
+    [[ -z "$choice" ]] && return
+    case "${choice##* }" in
+        Light) cmd_set light ;;
+        Dark)  cmd_set dark ;;
+    esac
+}
+
+cmd_set() {
+    case "$1" in
+        light) touch "$FLAG" ;;
+        dark)  rm -f "$FLAG" ;;
+        *) echo "usage: helium-mode set {light|dark}" >&2; exit 1 ;;
+    esac
+    apply
+}
+
+cmd_toggle() {
+    if [[ "$(effective_mode)" == "light" ]]; then
+        cmd_set dark
+    else
+        cmd_set light
+    fi
+}
+
+case "${1:-status}" in
+    status) cmd_status ;;
+    pick)   cmd_pick ;;
+    set)    shift; cmd_set "$@" ;;
+    toggle) cmd_toggle ;;
+    *) echo "usage: helium-mode {status|pick|set MODE|toggle}" >&2; exit 1 ;;
+esac

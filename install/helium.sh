@@ -84,8 +84,8 @@ mkdir -p ~/.config/net.imput.helium/WidevineCdm
 echo -n '{"Path":"/usr/lib/chromium/WidevineCdm"}' > ~/.config/net.imput.helium/WidevineCdm/latest-component-updated-widevine-cdm
 echo -e "${GREEN}✓${RESET} Helium configured to use Widevine (enables Netflix, Spotify, etc.)"
 
-# Install Omarchy theme-set hook to force Helium light mode
-# Helium reads /etc/chromium/policies which Omarchy sets for Chromium with a dark theme color
+# Install Omarchy theme-set hook for Helium drivetrain light-mode override
+# See: stow/bin/.local/bin/helium-mode (toggles ~/.config/helium-force-light)
 HOOK_DIR=~/.config/omarchy/hooks
 HOOK_SRC="$(dirname "$0")/../hooks/theme-set"
 mkdir -p "$HOOK_DIR"
@@ -93,15 +93,11 @@ cp "$HOOK_SRC" "$HOOK_DIR/theme-set"
 chmod +x "$HOOK_DIR/theme-set"
 echo -e "${GREEN}✓${RESET} Installed theme-set hook for Helium light mode"
 
-# Allow theme-set hook to overwrite Chromium policy without password
-SUDOERS_FILE=/etc/sudoers.d/helium-theme
-SUDOERS_RULE="$USER ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/chromium/policies/managed/color.json"
-if [ ! -f "$SUDOERS_FILE" ]; then
-    echo "$SUDOERS_RULE" | sudo tee "$SUDOERS_FILE" &> /dev/null
-    sudo chmod 440 "$SUDOERS_FILE"
-    echo -e "${GREEN}✓${RESET} Added sudoers rule for theme hook"
-else
-    echo -e "${GREEN}✓${RESET} Sudoers rule already exists"
+# Remove legacy sudoers rule (the hook now writes the policy directly since
+# /etc/chromium/policies/managed is world-writable on Omarchy)
+if [ -f /etc/sudoers.d/helium-theme ]; then
+    sudo rm /etc/sudoers.d/helium-theme &> /dev/null
+    echo -e "${GREEN}✓${RESET} Removed legacy sudoers rule"
 fi
 
 echo -e "${BLUE}ℹ${RESET} Note: Restart Hyprland for the default browser change to take effect"
