@@ -47,10 +47,6 @@ window#waybar {
   margin: 0 7.5px;
 }
 
-#custom-bg-mode.override {
-  color: #d4a574;
-}
-
 #tray {
   margin-right: 16px;
 }
