@@ -38,6 +38,14 @@ refresh_helium() {
     helium-browser --refresh-platform-policy --no-startup-window &>/dev/null &
 }
 
+# Flip the desktop color-scheme preference. Helium (and any other portal-aware
+# app) reads this via xdg-desktop-portal when its theme is set to "Device", so
+# without this the browser stays dark even though we override the toolbar tint.
+set_color_scheme() {
+    local scheme="$1"  # prefer-light | prefer-dark
+    gsettings set org.gnome.desktop.interface color-scheme "$scheme" 2>/dev/null
+}
+
 signal_waybar() {
     pkill -RTMIN+$WAYBAR_SIGNAL waybar 2>/dev/null
 }
@@ -46,6 +54,11 @@ apply() {
     # Re-derive Omarchy's natural color, then let the hook override if needed.
     omarchy-theme-set-browser
     "$HOOK"
+    if [[ "$(effective_mode)" == "light" ]]; then
+        set_color_scheme prefer-light
+    else
+        set_color_scheme prefer-dark
+    fi
     refresh_helium
     signal_waybar
 }
