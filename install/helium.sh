@@ -85,7 +85,7 @@ echo -n '{"Path":"/usr/lib/chromium/WidevineCdm"}' > ~/.config/net.imput.helium/
 echo -e "${GREEN}✓${RESET} Helium configured to use Widevine (enables Netflix, Spotify, etc.)"
 
 # Install Omarchy theme-set hook for Helium drivetrain light-mode override
-# See: stow/bin/.local/bin/helium-mode (toggles ~/.config/helium-force-light)
+# See: stow/bin/.local/bin/color-mode (toggles ~/.config/helium-force-light)
 HOOK_DIR=~/.config/omarchy/hooks
 HOOK_SRC="$(dirname "$0")/../hooks/theme-set"
 mkdir -p "$HOOK_DIR"

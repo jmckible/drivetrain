@@ -3,7 +3,7 @@
 # Force Helium to light mode when ~/.config/helium-force-light exists AND the
 # current Omarchy theme is drivetrain. Omarchy's omarchy-theme-set-browser
 # writes the natural color first; this hook runs after and overrides.
-# Toggle with: helium-mode
+# Toggle with: color-mode
 THEME=$(cat "$HOME/.config/omarchy/current/theme.name" 2>/dev/null)
 if [[ -f "$HOME/.config/helium-force-light" && "$THEME" == "drivetrain" ]]; then
     # /etc/chromium/policies/managed is world-writable on Omarchy; same write
@@ -11,5 +11,5 @@ if [[ -f "$HOME/.config/helium-force-light" && "$THEME" == "drivetrain" ]]; then
     echo '{"BrowserThemeColor": "#ffffff"}' > /etc/chromium/policies/managed/color.json
 fi
 
-# Refresh the waybar helium-mode module so it reflects the new theme's state.
+# Refresh the waybar color-mode module so it reflects the new theme's state.
 pkill -RTMIN+12 waybar 2>/dev/null || true

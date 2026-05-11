@@ -11,7 +11,7 @@
     "bluetooth",
     "network",
     "pulseaudio",
-    "custom/helium-mode",
+    "custom/color-mode",
     "custom/bg-mode",
     "cpu",
     "battery"
@@ -158,13 +158,13 @@
     "tooltip": true,
     "signal": 11
   },
-  "custom/helium-mode": {
-    "exec": "helium-mode status",
+  "custom/color-mode": {
+    "exec": "color-mode status",
     "return-type": "json",
     "interval": 0,
     "format": "{}",
-    "on-click": "helium-mode pick",
-    "on-click-right": "helium-mode toggle",
+    "on-click": "color-mode pick",
+    "on-click-right": "color-mode toggle",
     "tooltip": true,
     "signal": 12
   },

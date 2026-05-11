@@ -1,11 +1,13 @@
 #!/bin/bash
 
-# Manage Helium's light/dark mode override.
+# Manage the desktop's light/dark color mode.
 #
-# Omarchy's omarchy-theme-set-browser writes /etc/chromium/policies/managed/
-# color.json with each theme's natural color. For non-drivetrain themes that
-# stands. For drivetrain, this tool can override to light by setting the flag
-# ~/.config/helium-force-light; the theme-set hook then writes a white color.
+# Always flips the GNOME color-scheme preference (prefer-light/prefer-dark) so
+# any portal-aware app follows the chosen mode. On the drivetrain theme, also
+# overrides Helium's chromium policy color to white via the theme-set hook (see
+# hooks/theme-set), since drivetrain is natively dark but its backgrounds rotate
+# through light periods. On other Omarchy themes the helium override is a no-op
+# (the theme's intrinsic color stands); only the portal color-scheme changes.
 #
 # Subcommands:
 #   status     Waybar JSON ({text, tooltip, class}) for the current mode.
@@ -74,21 +76,21 @@ cmd_status() {
         class="dark"
     fi
     if is_drivetrain; then
-        tooltip="Helium: ${mode^}\nTheme: drivetrain\nClick to switch"
+        tooltip="Color mode: ${mode^}\nTheme: drivetrain\nClick to switch"
     else
-        tooltip="Helium: ${mode^}\nTheme: $(current_theme) (override only applies on drivetrain)"
+        tooltip="Color mode: ${mode^}\nTheme: $(current_theme) (light override only applies on drivetrain)"
     fi
     printf '{"text": "%s", "tooltip": "%s", "class": "%s"}\n' "$icon" "$tooltip" "$class"
 }
 
 cmd_pick() {
     if ! is_drivetrain; then
-        notify-send -u low "Helium mode" "Override only applies on drivetrain. Current theme: $(current_theme)"
+        notify-send -u low "Color mode" "Light override only applies on drivetrain. Current theme: $(current_theme)"
         return
     fi
     local options="󰛨  Light"$'\n'"󰹒  Dark"
     local choice
-    choice=$(echo -e "$options" | omarchy-launch-walker --dmenu --width 220 --minheight 1 --maxheight 200 -p "Helium mode…" 2>/dev/null)
+    choice=$(echo -e "$options" | omarchy-launch-walker --dmenu --width 220 --minheight 1 --maxheight 200 -p "Color mode…" 2>/dev/null)
     [[ -z "$choice" ]] && return
     case "${choice##* }" in
         Light) cmd_set light ;;
@@ -100,7 +102,7 @@ cmd_set() {
     case "$1" in
         light) touch "$FLAG" ;;
         dark)  rm -f "$FLAG" ;;
-        *) echo "usage: helium-mode set {light|dark}" >&2; exit 1 ;;
+        *) echo "usage: color-mode set {light|dark}" >&2; exit 1 ;;
     esac
     apply
 }
@@ -118,5 +120,5 @@ case "${1:-status}" in
     pick)   cmd_pick ;;
     set)    shift; cmd_set "$@" ;;
     toggle) cmd_toggle ;;
-    *) echo "usage: helium-mode {status|pick|set MODE|toggle}" >&2; exit 1 ;;
+    *) echo "usage: color-mode {status|pick|set MODE|toggle}" >&2; exit 1 ;;
 esac
