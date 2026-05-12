@@ -42,7 +42,10 @@ label_for() {
 }
 
 refresh_wallpaper() {
-    omarchy-theme-bg-auto >/dev/null 2>&1 &
+    # Rotate (vs. random pick) so a mode change always lands on a wallpaper
+    # from the new bucket, even if random would have re-picked the current one.
+    # Absolute path: Hyprland's exec env doesn't include ~/.local/bin in PATH.
+    "$HOME/.local/bin/omarchy-theme-bg-next-period" >/dev/null 2>&1
 }
 
 signal_waybar() {
