@@ -37,6 +37,11 @@ else
 fi
 
 # Install Dropbox if not already installed
+# TODO: The packaged dropbox.service runs /usr/bin/dropbox which is older than the
+# auto-updated ~/.dropbox-dist binary. The newer binary spawns with /newerversion and
+# SIGKILLs the parent PID, causing a crash loop. Fix: mask the packaged service and
+# add a custom unit that runs ~/.dropbox-dist/dropboxd directly (Type=simple).
+# See ~/.config/systemd/user/dropbox-start.service on both machines for the workaround.
 if ! command -v dropbox &> /dev/null && ! pacman -Qi dropbox &> /dev/null; then
     echo -e "${BLUE}▸${RESET} Installing Dropbox..."
     omarchy-install-dropbox
