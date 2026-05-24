@@ -45,8 +45,14 @@ if [[ ! -f ~/.config/hypr/bindings.conf ]]; then
     fi
 fi
 
-# Now stow shared hypr configs (these will be symlinked into the existing directory)
-stow -d "$STOW_DIR" -t ~ hypr
+# Symlink shared hypr configs with ln -sf instead of stow.
+# Hyprland watches ~/.config/hypr/hyprland.conf and instantly regenerates a stub
+# if it goes missing, which beats stow's pre-check and causes the whole package
+# to abort on conflict — leaving no symlinks in place. ln -sf wins the race
+# because each replacement is a single atomic rename.
+for f in "$STOW_DIR"/hypr/.config/hypr/*; do
+    ln -sf "$f" ~/.config/hypr/"$(basename "$f")"
+done
 
 # Accept optional command-line parameter (desktop or laptop)
 MACHINE_TYPE_ARG="$1"
