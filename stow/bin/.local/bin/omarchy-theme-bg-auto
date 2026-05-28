@@ -3,6 +3,12 @@
 # Selects a wallpaper from the bucket appropriate for the current time/weather,
 # honoring any active manual override (set via omarchy-bg-mode).
 
+# Only rotate when the active theme is drivetrain; other themes keep their wallpaper.
+CURRENT_THEME=$(cat "$HOME/.config/omarchy/current/theme.name" 2>/dev/null)
+if [[ "$CURRENT_THEME" != "drivetrain" ]]; then
+    exit 0
+fi
+
 source "$HOME/.local/bin/_omarchy-bg-bucket-lib.sh"
 
 BACKGROUNDS_DIR="$HOME/.config/omarchy/current/theme/backgrounds"
