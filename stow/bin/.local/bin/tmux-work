@@ -1,0 +1,65 @@
+#!/bin/bash
+# tmux-work — open my standard dev layout, idempotently.
+#
+#   Window 1 "claude": runs `claude`
+#   Window 2 "nvim":   nvim on top, `bin/dev` (foreman) on bottom (~22%)
+#
+# Behaviour depends on where it's launched from:
+#   • Inside a git project  -> session named after the branch's vNN token
+#     (v68, v69-agent -> v69, ...), else the project basename. Layout built once.
+#   • Anywhere else (e.g. the bare super-alt-return, which opens in $HOME)
+#     -> just attach to the most-recent existing session. Only cold-start a
+#     default "work" session when no tmux server is running at all.
+#
+# Re-running is a no-op beyond re-attaching: the layout is only ever built when
+# the target session is first created.
+
+build_layout() {   # $1 = session, $2 = dir
+    local session="$1" dir="$2"
+    tmux new-session -d -s "$session" -n claude -c "$dir"
+    tmux send-keys -t "$session:claude" 'claude' C-m
+
+    tmux new-window -t "$session" -n nvim -c "$dir"
+    tmux send-keys -t "$session:nvim.1" 'nvim' C-m
+    tmux split-window -v -l 22% -t "$session:nvim.1" -c "$dir"
+    if [[ -x "$dir/bin/dev" ]]; then
+        tmux send-keys -t "$session:nvim.2" 'bin/dev' C-m
+    fi
+    tmux select-pane -t "$session:nvim.1"
+    tmux select-window -t "$session:claude"
+}
+
+attach() {   # $1 = optional session target
+    if [[ -n "$TMUX" ]]; then
+        [[ -n "$1" ]] && tmux switch-client -t "$1"
+    else
+        exec tmux attach ${1:+-t "$1"}
+    fi
+}
+
+dir="$(pwd)"
+
+# Inside a real project (and not just sitting in $HOME)? -> per-project session.
+if root="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" && [[ "$root" != "$HOME" ]]; then
+    dir="$root"
+    branch="$(git -C "$dir" branch --show-current 2>/dev/null)"
+    if [[ "$branch" =~ ^(v[0-9]+) ]]; then
+        session="${BASH_REMATCH[1]}"
+    else
+        session="$(basename "$dir")"
+    fi
+    session="${session//[.:]/_}"   # '.' and ':' are illegal in session names
+    tmux has-session -t "=$session" 2>/dev/null || build_layout "$session" "$dir"
+    attach "$session"
+    exit 0
+fi
+
+# Launched outside a project (the global keybind opens in $HOME): hop into
+# existing work, or cold-start a default session only if there's no server.
+[[ -n "$TMUX" ]] && exit 0
+if tmux ls &>/dev/null; then
+    attach                       # most-recently-used session
+else
+    build_layout work "$HOME"
+    attach work
+fi
