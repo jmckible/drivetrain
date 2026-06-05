@@ -17,6 +17,31 @@
 omarchy-restart-waybar
 ```
 
+### Waybar pegging a CPU core (fan spinning)
+
+Misconfigured `custom/*` modules can silently pin a core 24/7 (screensaver/idle does
+not stop it). Two distinct failure modes, both hit here once:
+
+**Respawn storm** — a `custom/*` module with `exec` but no `interval` *and* no
+`signal` is treated as a persistent script; if the script exits immediately, waybar
+re-forks it thousands of times/sec. Stock Omarchy's `custom/voxtype` triggers this
+when the `voxtype` binary isn't installed — its status script falls to an
+`echo`-once-and-exit branch. Symptom: a fork storm of `bash`/`jq`/`omarchy-cmd-present`
+children under waybar.
+- Fix: `omarchy-voxtype-install` so the module's persistent `voxtype status --follow`
+  path blocks instead of exiting (voxtype is now installed, so a re-merged stock
+  config is safe), or drop the module.
+
+**Internal spin** — `"interval": 0` on a signal-driven module makes waybar busy-poll
+the closed pipe: high CPU with *no* child processes. Our `custom/color-mode` had this.
+- Fix: use `"interval": "once"` — the `signal` already handles refresh.
+
+Diagnose: `systemctl --user status 'app-Hyprland-waybar-*.scope'` shows the whole
+subtree's CPU. Fast-forking children → respawn storm; none → internal spin.
+
+Configs live in `stow/waybar/.config/waybar/config.jsonc`. On Omarchy merges, re-check
+any stock `custom/*` module for a missing `interval`/`signal` or `"interval": 0`.
+
 ### SSH not working after install
 ```bash
 sudo systemctl enable --now sshd
