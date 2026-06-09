@@ -21,6 +21,7 @@ stow -d "$STOW_DIR" -t ~ bin
 stow -d "$STOW_DIR" -t ~ git
 stow -d "$STOW_DIR" -t ~ bash
 stow -d "$STOW_DIR" -t ~ systemd
+stow -d "$STOW_DIR" -t ~ quickshell
 
 # Claude Code config (remove specific files, not whole directory)
 rm -f ~/.claude/CLAUDE.md ~/.claude/settings.json ~/.claude/statusline-command.sh

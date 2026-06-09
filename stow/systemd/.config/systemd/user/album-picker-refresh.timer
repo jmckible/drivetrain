@@ -1,0 +1,9 @@
+[Unit]
+Description=Refresh album picker cache daily after album rotation
+
+[Timer]
+OnCalendar=*-*-* 06:40:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,52 @@
+#!/bin/bash
+set -euo pipefail
+
+# Refresh the album picker cache from the dashboard API.
+# Writes ~/.cache/albums/albums.json and downloads artwork to ~/.cache/albums/art/.
+# The quickshell picker watches albums.json and live-reloads when it changes.
+
+ENV_FILE="$HOME/dev/dashboard/.env.production"
+CACHE_DIR="$HOME/.cache/albums"
+ART_DIR="$CACHE_DIR/art"
+
+[[ -f $ENV_FILE ]] || { echo "ERROR: missing $ENV_FILE" >&2; exit 1; }
+source "$ENV_FILE"
+mkdir -p "$ART_DIR"
+
+fetch() {
+  curl -sf --max-time 10 -H "Authorization: Bearer $DASHBOARD_API_TOKEN" "$DASHBOARD_URL/api/v1/$1"
+}
+
+music=$(fetch album_slots)
+new_music=$(fetch new_music_slots)
+
+json=$(jq -n --argjson music "$music" --argjson new "$new_music" --arg art "$ART_DIR" '
+  def cell(section): select(.album.apple_music_url != null) | {
+    id:      .album.id,
+    artist:  .album.artist,
+    title:   .album.title,
+    url:     .album.apple_music_url,
+    artwork: .album.artwork_url,
+    art:     ($art + "/" + (.album.id | tostring) + ".jpg"),
+    pinned:  .pinned,
+    section: section
+  };
+  [($new[] | cell("New Music")), ($music[] | cell("Music"))]
+')
+
+# Download missing artwork before publishing the json so the grid never shows gaps
+echo "$json" | jq -r '.[] | select(.artwork != null) | "\(.art)\t\(.artwork)"' |
+  while IFS=$'\t' read -r path url; do
+    [[ -f $path ]] || curl -sf --max-time 15 -o "$path" "$url" || rm -f "$path"
+  done
+
+# Prune artwork no longer referenced by any slot
+keep=$(echo "$json" | jq -r '.[].art')
+for f in "$ART_DIR"/*.jpg; do
+  [[ -e $f ]] || break
+  grep -qxF "$f" <<< "$keep" || rm -f "$f"
+done
+
+tmp=$(mktemp "$CACHE_DIR/.albums.json.XXXXXX")
+echo "$json" > "$tmp"
+mv "$tmp" "$CACHE_DIR/albums.json"

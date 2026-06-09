@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Toggle the album picker overlay. Starts the quickshell daemon on first use
+# and refreshes the cache in the background (the picker live-reloads on change).
+#
+# Omarchy 4: once the picker is an omarchy-shell plugin, the daemon bootstrap
+# below goes away — keep the refresh call and replace the qs invocations with
+# `omarchy-shell shell toggle <plugin-id>` (omarchy-shell-ipc auto-starts).
+
+~/.local/bin/album-picker-refresh &>/dev/null &
+
+if ! qs -c albums ipc show &>/dev/null; then
+  if command -v uwsm-app &>/dev/null; then
+    setsid uwsm-app -- qs -c albums &>/dev/null &
+  else
+    setsid qs -c albums &>/dev/null &
+  fi
+  for _ in $(seq 1 50); do
+    qs -c albums ipc show &>/dev/null && break
+    sleep 0.1
+  done
+fi
+
+exec qs -c albums ipc call picker toggle

@@ -1,0 +1,6 @@
+[Unit]
+Description=Refresh album picker cache from dashboard API
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/album-picker-refresh
